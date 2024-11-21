@@ -1,0 +1,55 @@
+server:
+  port: 8100
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+spring:
+  datasource:
+    write:
+      jdbc-url: jdbc:postgresql://localhost:5432/demo
+      username: root
+      password: 1234
+      driver-class-name: org.postgresql.Driver
+      hikari:
+        maximum-pool-size: 10
+        minimum-idle: 5
+    read:
+      jdbc-url: jdbc:postgresql://localhost:5432/demo
+      username: root
+      password: 1234
+      driver-class-name: org.postgresql.Driver
+      hikari:
+        maximum-pool-size: 20
+        minimum-idle: 10
+  # 스케줄러 설정
+  task:
+    scheduling:
+      pool:
+        size: 5  # 스케줄링 작업을 위한 스레드 풀 크기
+      thread-name-prefix: scheduler-  # 스케줄러 스레드 이름 접두사
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 10
+
+# 로깅 설정
+logging:
+  level:
+    event_sourcing.study: DEBUG
+    org.hibernate.SQL: DEBUG
+    #org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+# 재시도 설정
+retry:
+  maxAttempts: 3
+  initialInterval: 1000
+  multiplier: 2
+  maxInterval: 10000
