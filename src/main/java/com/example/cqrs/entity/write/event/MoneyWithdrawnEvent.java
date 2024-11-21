@@ -1,7 +1,7 @@
-package com.example.cqrs.entity.read.write.event;
+package com.example.cqrs.entity.write.event;
 
-import event_sourcing.study.entity.write.event.base.BaseAccountEvent;
-import event_sourcing.study.entity.write.event.base.EventMetadata;
+import com.example.cqrs.entity.write.event.base.BaseAccountEvent;
+import com.example.cqrs.entity.write.event.base.EventMetadata;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import lombok.AccessLevel;

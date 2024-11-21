@@ -1,6 +1,6 @@
 package com.example.cqrs.repository.write;
 
-import event_sourcing.study.entity.write.event.base.BaseAccountEvent;
+import com.example.cqrs.entity.write.event.base.BaseAccountEvent;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,4 +1,4 @@
-package com.example.cqrs.entity.read.write;
+package com.example.cqrs.entity.write;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

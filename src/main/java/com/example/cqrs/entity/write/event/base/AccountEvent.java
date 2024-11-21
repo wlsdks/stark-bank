@@ -1,4 +1,4 @@
-package com.example.cqrs.entity.read.write.event.base;
+package com.example.cqrs.entity.write.event.base;
 
 import java.time.LocalDateTime;
 

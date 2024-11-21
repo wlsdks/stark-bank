@@ -1,6 +1,6 @@
 package com.example.cqrs.repository.read;
 
-import event_sourcing.study.entity.read.AccountReadEntity;
+import com.example.cqrs.entity.read.AccountReadEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
