@@ -8,10 +8,10 @@ import com.example.cqrs.entity.write.event.MoneyWithdrawnEvent;
 import com.example.cqrs.entity.write.event.base.BaseAccountEvent;
 import com.example.cqrs.entity.write.event.base.EventMetadata;
 import com.example.cqrs.exception.ConcurrencyException;
-import com.example.cqrs.repository.read.AccountReadRepository;
+import com.example.cqrs.repository.read.AccountViewRepository;
 import com.example.cqrs.repository.write.AccountSnapshotRepository;
 import com.example.cqrs.service.AccountEventStore;
-import com.example.cqrs.service.AccountWriteService;
+import com.example.cqrs.service.AccountCommandService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -30,11 +30,11 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
-public class AccountWriteServiceImpl implements AccountWriteService {
+public class AccountCommandServiceImpl implements AccountCommandService {
 
     private final AccountEventStore accountEventStore;            // 이벤트 저장소
     private final AccountSnapshotRepository snapshotRepository;   // 스냅샷 저장소
-    private final AccountReadRepository accountReadRepository;    // 읽기 모델 저장소
+    private final AccountViewRepository accountViewRepository;    // 읽기 모델 저장소
     private final ApplicationEventPublisher eventPublisher;       // 이벤트 발행기
 
     private static final int SNAPSHOT_THRESHOLD = 100; // 스냅샷 생성 기준 이벤트 수
@@ -50,7 +50,7 @@ public class AccountWriteServiceImpl implements AccountWriteService {
     @Transactional
     @Override
     public void createAccount(String accountId, String userId) {
-        if (accountReadRepository.existsById(accountId)) {
+        if (accountViewRepository.existsById(accountId)) {
             throw new IllegalArgumentException("이미 존재하는 계좌입니다.");
         }
 

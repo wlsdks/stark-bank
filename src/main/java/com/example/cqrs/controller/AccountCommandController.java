@@ -1,6 +1,6 @@
 package com.example.cqrs.controller;
 
-import com.example.cqrs.service.AccountWriteService;
+import com.example.cqrs.service.AccountCommandService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/accounts")
 @RequiredArgsConstructor
 @RestController
-public class AccountWriteController {
+public class AccountCommandController {
 
-    private final AccountWriteService accountWriteService;
+    private final AccountCommandService accountWriteService;
 
     @PostMapping("/{accountId}")
     public ResponseEntity<String> createAccount(

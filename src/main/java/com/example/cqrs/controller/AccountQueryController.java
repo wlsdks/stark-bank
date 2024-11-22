@@ -2,9 +2,9 @@ package com.example.cqrs.controller;
 
 import com.example.cqrs.controller.dto.AccountDto;
 import com.example.cqrs.controller.dto.AccountEventDto;
-import com.example.cqrs.entity.read.AccountReadEntity;
+import com.example.cqrs.entity.read.AccountView;
 import com.example.cqrs.entity.write.event.base.BaseAccountEvent;
-import com.example.cqrs.service.AccountReadService;
+import com.example.cqrs.service.AccountQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,15 +15,15 @@ import java.util.stream.Collectors;
 @RequestMapping("/accounts")
 @RequiredArgsConstructor
 @RestController
-public class AccountReadController {
+public class AccountQueryController {
 
-    private final AccountReadService accountReadService;
+    private final AccountQueryService accountQueryService;
 
     @GetMapping("/{accountId}")
     public ResponseEntity<AccountDto> getAccount(
             @PathVariable String accountId,
             @RequestHeader("X-User-Id") String userId) {
-        AccountReadEntity account = accountReadService.getAccount(accountId);
+        AccountView account = accountQueryService.getAccount(accountId);
         return ResponseEntity.ok(AccountDto.from(account));
     }
 
@@ -31,7 +31,7 @@ public class AccountReadController {
     public ResponseEntity<List<AccountEventDto>> getAccountHistory(
             @PathVariable String accountId,
             @RequestHeader("X-User-Id") String userId) {
-        List<BaseAccountEvent> events = accountReadService.getAccountHistory(accountId);
+        List<BaseAccountEvent> events = accountQueryService.getAccountHistory(accountId);
         return ResponseEntity.ok(events.stream()
                 .map(AccountEventDto::from)
                 .collect(Collectors.toList()));
@@ -40,7 +40,7 @@ public class AccountReadController {
     @GetMapping("/user/{userId}/transactions")
     public ResponseEntity<List<AccountEventDto>> getUserTransactions(
             @PathVariable String userId) {
-        List<BaseAccountEvent> events = accountReadService.getUserTransactions(userId);
+        List<BaseAccountEvent> events = accountQueryService.getUserTransactions(userId);
         return ResponseEntity.ok(events.stream()
                 .map(AccountEventDto::from)
                 .collect(Collectors.toList()));
@@ -51,7 +51,7 @@ public class AccountReadController {
     public ResponseEntity<List<AccountEventDto>> getRelatedTransactions(
             @PathVariable String correlationId,
             @RequestHeader("X-User-Id") String userId) {
-        List<BaseAccountEvent> events = accountReadService.getRelatedTransactions(correlationId);
+        List<BaseAccountEvent> events = accountQueryService.getRelatedTransactions(correlationId);
         return ResponseEntity.ok(events.stream()
                 .map(AccountEventDto::from)
                 .collect(Collectors.toList()));

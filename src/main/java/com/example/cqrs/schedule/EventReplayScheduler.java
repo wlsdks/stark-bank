@@ -1,6 +1,6 @@
 package com.example.cqrs.schedule;
 
-import com.example.cqrs.service.AccountReadService;
+import com.example.cqrs.service.AccountQueryService;
 import com.example.cqrs.service.EventReplayService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,10 +13,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @Component
-public class DataSyncScheduler {
+public class EventReplayScheduler {
 
     private final EventReplayService eventReplayService;
-    private final AccountReadService accountReadService;
+    private final AccountQueryService accountQueryService;
 
     @Scheduled(cron = "0 0 0 * * *")
     public void syncDailyData() {
@@ -24,7 +24,7 @@ public class DataSyncScheduler {
         LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
 
         try {
-            List<String> activeAccounts = accountReadService.getActiveAccountIds();
+            List<String> activeAccounts = accountQueryService.getActiveAccountIds();
             log.info("Found {} active accounts to sync", activeAccounts.size());
 
             activeAccounts.forEach(accountId -> {

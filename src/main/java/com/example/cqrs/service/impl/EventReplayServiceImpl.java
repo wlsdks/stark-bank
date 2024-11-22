@@ -4,7 +4,7 @@ import com.example.cqrs.entity.write.event.AccountCreatedEvent;
 import com.example.cqrs.entity.write.event.MoneyDepositedEvent;
 import com.example.cqrs.entity.write.event.MoneyWithdrawnEvent;
 import com.example.cqrs.entity.write.event.base.BaseAccountEvent;
-import com.example.cqrs.event.listener.AccountEventHandler;
+import com.example.cqrs.event.listener.AccountEventListener;
 import com.example.cqrs.exception.EventReplayException;
 import com.example.cqrs.service.AccountEventStore;
 import com.example.cqrs.service.EventReplayService;
@@ -19,7 +19,7 @@ import java.util.List;
 
 /**
  * 이벤트 재생을 담당하는 서비스 구현체입니다.
- * 읽기 모델(AccountReadEntity)을 재구성하거나 특정 시점부터 이벤트를 다시 적용할 때 사용됩니다.
+ * 읽기 모델(AccountView)을 재구성하거나 특정 시점부터 이벤트를 다시 적용할 때 사용됩니다.
  *
  * <p>주요 사용 사례:</p>
  * <ul>
@@ -35,7 +35,7 @@ import java.util.List;
 public class EventReplayServiceImpl implements EventReplayService {
 
     private final AccountEventStore accountEventStore;  // 이벤트 저장소
-    private final AccountEventHandler eventHandler;     // 이벤트 핸들러
+    private final AccountEventListener eventHandler;     // 이벤트 핸들러
     private final RetryTemplate retryTemplate;          // 재시도 템플릿
 
     /**

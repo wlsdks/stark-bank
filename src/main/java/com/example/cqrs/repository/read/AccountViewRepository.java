@@ -1,6 +1,6 @@
 package com.example.cqrs.repository.read;
 
-import com.example.cqrs.entity.read.AccountReadEntity;
+import com.example.cqrs.entity.read.AccountView;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
  * 패키지 위치에 따라 자동으로 읽기 DB 사용
  */
 @Repository
-public interface AccountReadRepository extends JpaRepository<AccountReadEntity, String> {
+public interface AccountViewRepository extends JpaRepository<AccountView, String> {
 }

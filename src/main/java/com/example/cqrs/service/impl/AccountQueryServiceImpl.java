@@ -1,10 +1,10 @@
 package com.example.cqrs.service.impl;
 
-import com.example.cqrs.entity.read.AccountReadEntity;
+import com.example.cqrs.entity.read.AccountView;
 import com.example.cqrs.entity.write.event.base.BaseAccountEvent;
-import com.example.cqrs.repository.read.AccountReadRepository;
+import com.example.cqrs.repository.read.AccountViewRepository;
 import com.example.cqrs.service.AccountEventStore;
-import com.example.cqrs.service.AccountReadService;
+import com.example.cqrs.service.AccountQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,9 +22,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 @Service
-public class AccountReadServiceImpl implements AccountReadService {
+public class AccountQueryServiceImpl implements AccountQueryService {
 
-    private final AccountReadRepository accountReadRepository;  // 읽기 모델 저장소
+    private final AccountViewRepository accountViewRepository;  // 읽기 모델 저장소
     private final AccountEventStore accountEventStore;          // 이벤트 저장소
 
     /**
@@ -35,8 +35,8 @@ public class AccountReadServiceImpl implements AccountReadService {
      * @throws IllegalArgumentException 계좌를 찾을 수 없는 경우
      */
     @Override
-    public AccountReadEntity getAccount(String accountId) {
-        return accountReadRepository.findById(accountId)
+    public AccountView getAccount(String accountId) {
+        return accountViewRepository.findById(accountId)
                 .orElseThrow(() -> new IllegalArgumentException("계좌를 찾을 수 없습니다."));
     }
 
@@ -88,9 +88,9 @@ public class AccountReadServiceImpl implements AccountReadService {
     public List<String> getActiveAccountIds() {
         log.debug("Fetching all active account IDs");
 
-        List<String> accountIds = accountReadRepository.findAll()
+        List<String> accountIds = accountViewRepository.findAll()
                 .stream()
-                .map(AccountReadEntity::getAccountId)
+                .map(AccountView::getAccountId)
                 .collect(Collectors.toList());
 
         log.debug("Found {} active accounts", accountIds.size());

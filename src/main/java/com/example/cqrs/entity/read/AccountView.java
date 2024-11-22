@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Table(name = "account_read")
-public class AccountReadEntity {
+public class AccountView {
 
     @Id
     private String accountId; // 계좌 ID
@@ -27,8 +27,8 @@ public class AccountReadEntity {
     private double balance;   // 잔액
 
     // factory method
-    public static AccountReadEntity of(String accountId, Double amount) {
-        return new AccountReadEntity(accountId, amount);
+    public static AccountView of(String accountId, Double amount) {
+        return new AccountView(accountId, amount);
     }
 
     // 잔액 변경 메서드

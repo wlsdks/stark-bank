@@ -1,12 +1,12 @@
 package com.example.cqrs.event.listener;
 
-import com.example.cqrs.entity.read.AccountReadEntity;
+import com.example.cqrs.entity.read.AccountView;
 import com.example.cqrs.entity.write.event.AccountCreatedEvent;
 import com.example.cqrs.entity.write.event.MoneyDepositedEvent;
 import com.example.cqrs.entity.write.event.MoneyWithdrawnEvent;
 import com.example.cqrs.entity.write.event.base.BaseAccountEvent;
 import com.example.cqrs.exception.EventHandlingException;
-import com.example.cqrs.repository.read.AccountReadRepository;
+import com.example.cqrs.repository.read.AccountViewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.support.RetryTemplate;
@@ -18,15 +18,15 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
  * 계좌 관련 이벤트를 처리하는 이벤트 핸들러입니다.
- * 이벤트 발생 시 읽기 모델(AccountReadEntity)을 업데이트하며,
+ * 이벤트 발생 시 읽기 모델(AccountView)을 업데이트하며,
  * 실패 시 재시도 메커니즘을 통해 안정성을 보장합니다.
  */
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class AccountEventHandler {
+public class AccountEventListener {
 
-    private final AccountReadRepository accountReadRepository;
+    private final AccountViewRepository accountViewRepository;
     private final RetryTemplate retryTemplate;
 
     /**
@@ -42,11 +42,11 @@ public class AccountEventHandler {
         log.info("Handling AccountCreatedEvent: {}", event.getAccountId());
         try {
             retryTemplate.execute(context -> {
-                AccountReadEntity account = AccountReadEntity.of(
+                AccountView account = AccountView.of(
                         event.getAccountId(),
                         event.getAmount()
                 );
-                accountReadRepository.save(account);
+                accountViewRepository.save(account);
                 log.info("Successfully created read model for account: {}", event.getAccountId());
                 return null;
             });
@@ -111,7 +111,7 @@ public class AccountEventHandler {
      * @throws IllegalArgumentException 계좌를 찾을 수 없는 경우
      */
     private void updateBalance(BaseAccountEvent event, boolean isDeposit) {
-        AccountReadEntity account = accountReadRepository.findById(event.getAccountId())
+        AccountView account = accountViewRepository.findById(event.getAccountId())
                 .orElseThrow(() -> new IllegalArgumentException("계좌를 찾을 수 없습니다."));
 
         double newBalance = isDeposit ?
@@ -119,7 +119,7 @@ public class AccountEventHandler {
                 account.getBalance() - event.getAmount();
 
         account.changeBalance(newBalance);
-        accountReadRepository.save(account);
+        accountViewRepository.save(account);
     }
 
 }

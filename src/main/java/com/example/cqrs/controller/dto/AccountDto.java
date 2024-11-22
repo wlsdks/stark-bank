@@ -1,6 +1,6 @@
 package com.example.cqrs.controller.dto;
 
-import com.example.cqrs.entity.read.AccountReadEntity;
+import com.example.cqrs.entity.read.AccountView;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,7 +12,7 @@ public class AccountDto {
     private String accountId;
     private double balance;
     
-    public static AccountDto from(AccountReadEntity entity) {
+    public static AccountDto from(AccountView entity) {
         return new AccountDto(entity.getAccountId(), entity.getBalance());
     }
 

@@ -1,6 +1,6 @@
 package com.example.cqrs.service;
 
-public interface AccountWriteService {
+public interface AccountCommandService {
 
     void createAccount(String accountId, String userId);
 
