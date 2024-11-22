@@ -1,6 +1,6 @@
 package com.example.cqrs.service.impl;
 
-import com.example.cqrs.entity.write.event.base.BaseAccountEvent;
+import com.example.cqrs.entity.write.event.base.AbstractAccountEvent;
 import com.example.cqrs.repository.write.AccountEventRepository;
 import com.example.cqrs.service.AccountEventStore;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,7 @@ public class AccountEventStoreImpl implements AccountEventStore {
      */
     @Override
     @Transactional
-    public void save(BaseAccountEvent event) {
+    public void save(AbstractAccountEvent event) {
         validateEvent(event);
         eventRepository.save(event);
     }
@@ -43,7 +43,7 @@ public class AccountEventStoreImpl implements AccountEventStore {
      * @return 시간순으로 정렬된 이벤트 목록
      */
     @Override
-    public List<BaseAccountEvent> getEvents(String accountId, LocalDateTime after) {
+    public List<AbstractAccountEvent> getEvents(String accountId, LocalDateTime after) {
         return eventRepository.findByAccountIdAndEventDateAfterOrderByEventDateAsc(
                 accountId, after);
     }
@@ -55,7 +55,7 @@ public class AccountEventStoreImpl implements AccountEventStore {
      * @return 전체 이벤트 목록
      */
     @Override
-    public List<BaseAccountEvent> getAllEvents(String accountId) {
+    public List<AbstractAccountEvent> getAllEvents(String accountId) {
         return eventRepository.findByAccountIdOrderByEventDateAsc(accountId);
     }
 
@@ -67,7 +67,7 @@ public class AccountEventStoreImpl implements AccountEventStore {
      * @return 연관된 이벤트 목록
      */
     @Override
-    public List<BaseAccountEvent> findByMetadataCorrelationId(String correlationId) {
+    public List<AbstractAccountEvent> findByMetadataCorrelationId(String correlationId) {
         return eventRepository.findByMetadataCorrelationId(correlationId);
     }
 
@@ -79,7 +79,7 @@ public class AccountEventStoreImpl implements AccountEventStore {
      * @return 해당 사용자의 이벤트 목록
      */
     @Override
-    public List<BaseAccountEvent> findByMetadataUserId(String userId) {
+    public List<AbstractAccountEvent> findByMetadataUserId(String userId) {
         return eventRepository.findByMetadataUserIdOrderByEventDateDesc(userId);
     }
 
@@ -104,12 +104,12 @@ public class AccountEventStoreImpl implements AccountEventStore {
      * @throws IllegalArgumentException 필수 필드가 누락된 경우
      * @throws IllegalStateException    이벤트 시간 순서가 올바르지 않은 경우
      */
-    private void validateEvent(BaseAccountEvent event) {
+    private void validateEvent(AbstractAccountEvent event) {
         if (event.getAccountId() == null || event.getEventDate() == null) {
             throw new IllegalArgumentException("필수 필드가 누락되었습니다.");
         }
 
-        List<BaseAccountEvent> existingEvents = eventRepository
+        List<AbstractAccountEvent> existingEvents = eventRepository
                 .findByAccountIdOrderByEventDateDesc(event.getAccountId());
 
         if (!existingEvents.isEmpty()) {
@@ -128,7 +128,7 @@ public class AccountEventStoreImpl implements AccountEventStore {
      * @param event 검증할 이벤트
      * @throws IllegalArgumentException 메타데이터가 유효하지 않은 경우
      */
-    private void validateEventMetadata(BaseAccountEvent event) {
+    private void validateEventMetadata(AbstractAccountEvent event) {
         if (event.getMetadata() == null) {
             throw new IllegalArgumentException("이벤트 메타데이터가 누락되었습니다.");
         }

@@ -1,6 +1,6 @@
 package com.example.cqrs.controller.dto;
 
-import com.example.cqrs.entity.write.event.base.BaseAccountEvent;
+import com.example.cqrs.entity.write.event.base.AbstractAccountEvent;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,7 +18,7 @@ public class AccountEventDto {
     private String userId;
     private String correlationId;
     
-    public static AccountEventDto from(BaseAccountEvent event) {
+    public static AccountEventDto from(AbstractAccountEvent event) {
         return new AccountEventDto(
             event.getClass().getSimpleName(),
             event.getAccountId(),

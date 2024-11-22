@@ -3,7 +3,7 @@ package com.example.cqrs.service.impl;
 import com.example.cqrs.entity.write.event.AccountCreatedEvent;
 import com.example.cqrs.entity.write.event.MoneyDepositedEvent;
 import com.example.cqrs.entity.write.event.MoneyWithdrawnEvent;
-import com.example.cqrs.entity.write.event.base.BaseAccountEvent;
+import com.example.cqrs.entity.write.event.base.AbstractAccountEvent;
 import com.example.cqrs.event.listener.AccountEventListener;
 import com.example.cqrs.exception.EventReplayException;
 import com.example.cqrs.service.AccountEventStore;
@@ -51,7 +51,7 @@ public class EventReplayServiceImpl implements EventReplayService {
         log.info("Starting event replay for account: {} from date: {}", accountId, fromDate);
 
         // 지정된 날짜 이후의 모든 이벤트 조회
-        List<BaseAccountEvent> events = accountEventStore.getEvents(accountId, fromDate);
+        List<AbstractAccountEvent> events = accountEventStore.getEvents(accountId, fromDate);
 
         // 각 이벤트를 재시도 로직과 함께 처리
         events.forEach(event -> {
@@ -76,7 +76,7 @@ public class EventReplayServiceImpl implements EventReplayService {
      *
      * @param event 처리할 이벤트
      */
-    private void processEvent(BaseAccountEvent event) {
+    private void processEvent(AbstractAccountEvent event) {
         log.debug("Processing event: {}", event.getClass().getSimpleName());
 
         // 이벤트 타입에 따른 처리

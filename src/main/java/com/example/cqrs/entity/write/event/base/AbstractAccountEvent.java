@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @Entity
 @Table(name = "account_event")
-public abstract class BaseAccountEvent implements AccountEvent {
+public abstract class AbstractAccountEvent {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,8 +34,8 @@ public abstract class BaseAccountEvent implements AccountEvent {
     @Embedded
     private EventMetadata metadata;
 
-    protected BaseAccountEvent(String accountId, LocalDateTime eventDate,
-                             Double amount, EventMetadata metadata) {
+    protected AbstractAccountEvent(String accountId, LocalDateTime eventDate,
+                                   Double amount, EventMetadata metadata) {
         this.accountId = accountId;
         this.eventDate = eventDate;
         this.amount = amount;

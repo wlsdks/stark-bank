@@ -3,7 +3,7 @@ package com.example.cqrs.controller;
 import com.example.cqrs.controller.dto.AccountDto;
 import com.example.cqrs.controller.dto.AccountEventDto;
 import com.example.cqrs.entity.read.AccountView;
-import com.example.cqrs.entity.write.event.base.BaseAccountEvent;
+import com.example.cqrs.entity.write.event.base.AbstractAccountEvent;
 import com.example.cqrs.service.AccountQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +31,7 @@ public class AccountQueryController {
     public ResponseEntity<List<AccountEventDto>> getAccountHistory(
             @PathVariable String accountId,
             @RequestHeader("X-User-Id") String userId) {
-        List<BaseAccountEvent> events = accountQueryService.getAccountHistory(accountId);
+        List<AbstractAccountEvent> events = accountQueryService.getAccountHistory(accountId);
         return ResponseEntity.ok(events.stream()
                 .map(AccountEventDto::from)
                 .collect(Collectors.toList()));
@@ -40,7 +40,7 @@ public class AccountQueryController {
     @GetMapping("/user/{userId}/transactions")
     public ResponseEntity<List<AccountEventDto>> getUserTransactions(
             @PathVariable String userId) {
-        List<BaseAccountEvent> events = accountQueryService.getUserTransactions(userId);
+        List<AbstractAccountEvent> events = accountQueryService.getUserTransactions(userId);
         return ResponseEntity.ok(events.stream()
                 .map(AccountEventDto::from)
                 .collect(Collectors.toList()));
@@ -51,7 +51,7 @@ public class AccountQueryController {
     public ResponseEntity<List<AccountEventDto>> getRelatedTransactions(
             @PathVariable String correlationId,
             @RequestHeader("X-User-Id") String userId) {
-        List<BaseAccountEvent> events = accountQueryService.getRelatedTransactions(correlationId);
+        List<AbstractAccountEvent> events = accountQueryService.getRelatedTransactions(correlationId);
         return ResponseEntity.ok(events.stream()
                 .map(AccountEventDto::from)
                 .collect(Collectors.toList()));

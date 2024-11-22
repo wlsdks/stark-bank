@@ -1,6 +1,6 @@
 package com.example.cqrs.repository.write;
 
-import com.example.cqrs.entity.write.event.base.BaseAccountEvent;
+import com.example.cqrs.entity.write.event.base.AbstractAccountEvent;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,18 +12,18 @@ import java.util.List;
  * @Primary로 지정되어 있어 별도 설정 없이도 쓰기 DB 사용
  */
 @Repository
-public interface AccountEventRepository extends JpaRepository<BaseAccountEvent, Long> {
+public interface AccountEventRepository extends JpaRepository<AbstractAccountEvent, Long> {
 
-    List<BaseAccountEvent> findByAccountIdAndEventDateAfterOrderByEventDateAsc(
+    List<AbstractAccountEvent> findByAccountIdAndEventDateAfterOrderByEventDateAsc(
             String accountId, LocalDateTime afterDate);
 
-    List<BaseAccountEvent> findByAccountIdOrderByEventDateDesc(String accountId);
+    List<AbstractAccountEvent> findByAccountIdOrderByEventDateDesc(String accountId);
 
-    List<BaseAccountEvent> findByAccountIdOrderByEventDateAsc(String accountId);
+    List<AbstractAccountEvent> findByAccountIdOrderByEventDateAsc(String accountId);
 
-    List<BaseAccountEvent> findByMetadataCorrelationId(String correlationId);
+    List<AbstractAccountEvent> findByMetadataCorrelationId(String correlationId);
 
-    List<BaseAccountEvent> findByMetadataUserIdOrderByEventDateDesc(String userId);
+    List<AbstractAccountEvent> findByMetadataUserIdOrderByEventDateDesc(String userId);
 
     long countByAccountIdAndEventDateAfter(String accountId, LocalDateTime afterDate);
 

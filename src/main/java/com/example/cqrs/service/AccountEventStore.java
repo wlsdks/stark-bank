@@ -1,6 +1,6 @@
 package com.example.cqrs.service;
 
-import com.example.cqrs.entity.write.event.base.BaseAccountEvent;
+import com.example.cqrs.entity.write.event.base.AbstractAccountEvent;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,15 +11,15 @@ import java.util.List;
  */
 public interface AccountEventStore {
 
-    void save(BaseAccountEvent event);
+    void save(AbstractAccountEvent event);
 
-    List<BaseAccountEvent> getEvents(String accountId, LocalDateTime after);
+    List<AbstractAccountEvent> getEvents(String accountId, LocalDateTime after);
 
-    List<BaseAccountEvent> getAllEvents(String accountId);
+    List<AbstractAccountEvent> getAllEvents(String accountId);
 
-    List<BaseAccountEvent> findByMetadataCorrelationId(String correlationId);
+    List<AbstractAccountEvent> findByMetadataCorrelationId(String correlationId);
 
-    List<BaseAccountEvent> findByMetadataUserId(String userId);
+    List<AbstractAccountEvent> findByMetadataUserId(String userId);
 
     long countEventsAfterDate(String accountId, LocalDateTime afterDate);
 

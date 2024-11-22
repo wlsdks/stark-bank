@@ -1,11 +1,11 @@
 package com.example.cqrs.service.impl;
 
 import com.example.cqrs.domain.Account;
-import com.example.cqrs.entity.write.AccountSnapshotEntity;
+import com.example.cqrs.entity.write.AccountSnapshot;
 import com.example.cqrs.entity.write.event.AccountCreatedEvent;
 import com.example.cqrs.entity.write.event.MoneyDepositedEvent;
 import com.example.cqrs.entity.write.event.MoneyWithdrawnEvent;
-import com.example.cqrs.entity.write.event.base.BaseAccountEvent;
+import com.example.cqrs.entity.write.event.base.AbstractAccountEvent;
 import com.example.cqrs.entity.write.event.base.EventMetadata;
 import com.example.cqrs.exception.ConcurrencyException;
 import com.example.cqrs.repository.read.AccountViewRepository;
@@ -169,7 +169,7 @@ public class AccountCommandServiceImpl implements AccountCommandService {
      * @return 현재 잔액
      */
     private double calculateCurrentBalance(String accountId) {
-        AccountSnapshotEntity snapshot = snapshotRepository.findById(accountId)
+        AccountSnapshot snapshot = snapshotRepository.findById(accountId)
                 .orElse(null);
 
         LocalDateTime fromDate;
@@ -183,9 +183,9 @@ public class AccountCommandServiceImpl implements AccountCommandService {
             fromDate = LocalDateTime.of(1970, 1, 1, 0, 0);
         }
 
-        List<BaseAccountEvent> events = accountEventStore.getEvents(accountId, fromDate);
+        List<AbstractAccountEvent> events = accountEventStore.getEvents(accountId, fromDate);
 
-        for (BaseAccountEvent event : events) {
+        for (AbstractAccountEvent event : events) {
             if (event instanceof MoneyDepositedEvent) {
                 balance += event.getAmount();
             } else if (event instanceof MoneyWithdrawnEvent) {
@@ -214,7 +214,7 @@ public class AccountCommandServiceImpl implements AccountCommandService {
      * @param accountId 계좌 ID
      */
     private void checkAndSaveSnapshot(String accountId) {
-        AccountSnapshotEntity lastSnapshot = snapshotRepository.findById(accountId).orElse(null);
+        AccountSnapshot lastSnapshot = snapshotRepository.findById(accountId).orElse(null);
         LocalDateTime fromDate = lastSnapshot != null ?
                 lastSnapshot.getSnapshotDate() :
                 LocalDateTime.of(1970, 1, 1, 0, 0);
@@ -233,7 +233,7 @@ public class AccountCommandServiceImpl implements AccountCommandService {
      */
     private void saveSnapshot(String accountId) {
         double currentBalance = calculateCurrentBalance(accountId);
-        AccountSnapshotEntity snapshot = AccountSnapshotEntity.of(
+        AccountSnapshot snapshot = AccountSnapshot.of(
                 accountId,
                 currentBalance,
                 LocalDateTime.now()

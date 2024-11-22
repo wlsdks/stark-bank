@@ -4,7 +4,7 @@ import com.example.cqrs.entity.read.AccountView;
 import com.example.cqrs.entity.write.event.AccountCreatedEvent;
 import com.example.cqrs.entity.write.event.MoneyDepositedEvent;
 import com.example.cqrs.entity.write.event.MoneyWithdrawnEvent;
-import com.example.cqrs.entity.write.event.base.BaseAccountEvent;
+import com.example.cqrs.entity.write.event.base.AbstractAccountEvent;
 import com.example.cqrs.exception.EventHandlingException;
 import com.example.cqrs.repository.read.AccountViewRepository;
 import lombok.RequiredArgsConstructor;
@@ -89,7 +89,7 @@ public class AccountEventListener {
      * @param isDeposit true인 경우 입금, false인 경우 출금
      * @throws EventHandlingException 모든 재시도 후에도 처리 실패 시
      */
-    private void updateBalanceWithRetry(BaseAccountEvent event, boolean isDeposit) {
+    private void updateBalanceWithRetry(AbstractAccountEvent event, boolean isDeposit) {
         try {
             // execute 블록 안의 코드가 예외를 던지면 자동으로 재시도됩니다
             retryTemplate.execute(context -> {
@@ -110,7 +110,7 @@ public class AccountEventListener {
      * @param isDeposit true인 경우 입금, false인 경우 출금
      * @throws IllegalArgumentException 계좌를 찾을 수 없는 경우
      */
-    private void updateBalance(BaseAccountEvent event, boolean isDeposit) {
+    private void updateBalance(AbstractAccountEvent event, boolean isDeposit) {
         AccountView account = accountViewRepository.findById(event.getAccountId())
                 .orElseThrow(() -> new IllegalArgumentException("계좌를 찾을 수 없습니다."));
 

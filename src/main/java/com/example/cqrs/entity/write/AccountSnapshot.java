@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 @Getter
 @Entity
 @Table(name = "account_snapshot")
-public class AccountSnapshotEntity {
+public class AccountSnapshot {
 
     @Id
     private String accountId;  // 계좌의 ID (기본 키)
@@ -31,8 +31,8 @@ public class AccountSnapshotEntity {
     private LocalDateTime snapshotDate;  // 스냅샷 생성 시간
 
     // factory method
-    public static AccountSnapshotEntity of(String accountId, double balance, LocalDateTime now) {
-        return new AccountSnapshotEntity(accountId, balance, now);
+    public static AccountSnapshot of(String accountId, double balance, LocalDateTime now) {
+        return new AccountSnapshot(accountId, balance, now);
     }
 
 }

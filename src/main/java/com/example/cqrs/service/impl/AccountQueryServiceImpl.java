@@ -1,7 +1,7 @@
 package com.example.cqrs.service.impl;
 
 import com.example.cqrs.entity.read.AccountView;
-import com.example.cqrs.entity.write.event.base.BaseAccountEvent;
+import com.example.cqrs.entity.write.event.base.AbstractAccountEvent;
 import com.example.cqrs.repository.read.AccountViewRepository;
 import com.example.cqrs.service.AccountEventStore;
 import com.example.cqrs.service.AccountQueryService;
@@ -48,7 +48,7 @@ public class AccountQueryServiceImpl implements AccountQueryService {
      * @return 계좌 관련 이벤트 목록
      */
     @Override
-    public List<BaseAccountEvent> getAccountHistory(String accountId) {
+    public List<AbstractAccountEvent> getAccountHistory(String accountId) {
         return accountEventStore.getAllEvents(accountId);
     }
 
@@ -60,7 +60,7 @@ public class AccountQueryServiceImpl implements AccountQueryService {
      * @return 사용자 관련 이벤트 목록
      */
     @Override
-    public List<BaseAccountEvent> getUserTransactions(String userId) {
+    public List<AbstractAccountEvent> getUserTransactions(String userId) {
         return accountEventStore.findByMetadataUserId(userId);
     }
 
@@ -73,7 +73,7 @@ public class AccountQueryServiceImpl implements AccountQueryService {
      * @return 연관된 이벤트 목록
      */
     @Override
-    public List<BaseAccountEvent> getRelatedTransactions(String correlationId) {
+    public List<AbstractAccountEvent> getRelatedTransactions(String correlationId) {
         return accountEventStore.findByMetadataCorrelationId(correlationId);
     }
 
