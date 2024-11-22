@@ -2,7 +2,7 @@ package com.example.cqrs.command.service;
 
 import com.example.cqrs.command.entity.event.AbstractAccountEvent;
 import com.example.cqrs.command.repository.AccountEventStoreRepository;
-import com.example.cqrs.command.useCase.AccountEventStoreUseCase;
+import com.example.cqrs.command.usecase.AccountEventStoreUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,6 +1,6 @@
 package com.example.cqrs.command.controller;
 
-import com.example.cqrs.command.useCase.AccountCommandUseCase;
+import com.example.cqrs.command.usecase.AccountCommandUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
