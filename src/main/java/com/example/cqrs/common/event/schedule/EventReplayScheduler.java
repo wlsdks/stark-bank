@@ -1,4 +1,4 @@
-package com.example.cqrs.common.schedule;
+package com.example.cqrs.common.event.schedule;
 
 import com.example.cqrs.query.usecase.AccountQueryUseCase;
 import com.example.cqrs.common.service.EventReplayService;
