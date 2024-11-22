@@ -1,11 +1,15 @@
 package com.example.cqrs.command.usecase;
 
+import com.example.cqrs.command.dto.CreateAccountRequest;
+import com.example.cqrs.command.dto.DepositRequest;
+import com.example.cqrs.command.dto.WithdrawRequest;
+
 public interface AccountCommandUseCase {
 
-    void createAccount(String accountId, String userId);
+    void createAccount(CreateAccountRequest request);
 
-    void depositMoney(String accountId, double amount, String userId);
+    void depositMoney(DepositRequest request);
 
-    void withdrawMoney(String accountId, double amount, String userId);
+    void withdrawMoney(WithdrawRequest request);
 
 }
