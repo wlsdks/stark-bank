@@ -33,9 +33,8 @@ public class AccountQueryController {
             @PathVariable String accountId,
             @RequestHeader("X-User-Id") String userId
     ) {
-        return ResponseEntity.ok(
-                AccountDetailResponse.from(accountQueryUseCase.getAccount(accountId))
-        );
+        AccountDetailResponse response = AccountDetailResponse.from(accountQueryUseCase.getAccount(accountId));
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -50,11 +49,11 @@ public class AccountQueryController {
             @PathVariable String accountId,
             @RequestHeader("X-User-Id") String userId
     ) {
-        return ResponseEntity.ok(
-                accountQueryUseCase.getAccountHistory(accountId).stream()
-                        .map(AccountTransactionResponse::from)
-                        .collect(Collectors.toList())
-        );
+        List<AccountTransactionResponse> response = accountQueryUseCase.getAccountHistory(accountId).stream()
+                .map(AccountTransactionResponse::from)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -67,11 +66,11 @@ public class AccountQueryController {
     public ResponseEntity<List<AccountTransactionResponse>> getUserTransactions(
             @PathVariable String userId
     ) {
-        return ResponseEntity.ok(
-                accountQueryUseCase.getUserTransactions(userId).stream()
-                        .map(AccountTransactionResponse::from)
-                        .collect(Collectors.toList())
-        );
+        List<AccountTransactionResponse> response = accountQueryUseCase.getUserTransactions(userId).stream()
+                .map(AccountTransactionResponse::from)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -86,11 +85,11 @@ public class AccountQueryController {
             @PathVariable String correlationId,
             @RequestHeader("X-User-Id") String userId
     ) {
-        return ResponseEntity.ok(
-                accountQueryUseCase.getRelatedTransactions(correlationId).stream()
-                        .map(AccountTransactionResponse::from)
-                        .collect(Collectors.toList())
-        );
+        List<AccountTransactionResponse> response = accountQueryUseCase.getRelatedTransactions(correlationId).stream()
+                .map(AccountTransactionResponse::from)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
     }
 
 }
