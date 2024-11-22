@@ -1,11 +1,11 @@
-package com.example.cqrs.event.listener;
+package com.example.cqrs.common.event.listener;
 
 import com.example.cqrs.query.entity.AccountView;
 import com.example.cqrs.command.entity.event.AccountCreatedEvent;
 import com.example.cqrs.command.entity.event.MoneyDepositedEvent;
 import com.example.cqrs.command.entity.event.MoneyWithdrawnEvent;
 import com.example.cqrs.command.entity.event.AbstractAccountEvent;
-import com.example.cqrs.exception.EventHandlingException;
+import com.example.cqrs.common.exception.EventHandlingException;
 import com.example.cqrs.query.repository.AccountViewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

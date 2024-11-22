@@ -1,7 +1,7 @@
 package com.example.cqrs.schedule;
 
-import com.example.cqrs.query.service.AccountQueryUseCase;
-import com.example.cqrs.service.EventReplayService;
+import com.example.cqrs.query.usecase.AccountQueryUseCase;
+import com.example.cqrs.common.service.EventReplayService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

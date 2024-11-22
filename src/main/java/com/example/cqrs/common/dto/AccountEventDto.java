@@ -1,4 +1,4 @@
-package com.example.cqrs.dto;
+package com.example.cqrs.common.dto;
 
 import com.example.cqrs.command.entity.event.AbstractAccountEvent;
 import lombok.AccessLevel;

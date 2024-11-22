@@ -1,4 +1,4 @@
-package com.example.cqrs.service;
+package com.example.cqrs.common.service;
 
 import java.time.LocalDateTime;
 

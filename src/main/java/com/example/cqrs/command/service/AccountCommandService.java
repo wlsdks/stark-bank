@@ -1,15 +1,15 @@
 package com.example.cqrs.command.service;
 
-import com.example.cqrs.command.domain.Account;
+import com.example.cqrs.domain.Account;
 import com.example.cqrs.command.entity.AccountSnapshot;
 import com.example.cqrs.command.entity.event.AccountCreatedEvent;
 import com.example.cqrs.command.entity.event.MoneyDepositedEvent;
 import com.example.cqrs.command.entity.event.MoneyWithdrawnEvent;
 import com.example.cqrs.command.entity.event.AbstractAccountEvent;
 import com.example.cqrs.command.entity.event.metadata.EventMetadata;
-import com.example.cqrs.command.service.useCase.AccountCommandUseCase;
-import com.example.cqrs.command.service.useCase.AccountEventStoreUseCase;
-import com.example.cqrs.exception.ConcurrencyException;
+import com.example.cqrs.command.useCase.AccountCommandUseCase;
+import com.example.cqrs.command.useCase.AccountEventStoreUseCase;
+import com.example.cqrs.common.exception.ConcurrencyException;
 import com.example.cqrs.query.repository.AccountViewRepository;
 import com.example.cqrs.command.repository.AccountSnapshotRepository;
 import lombok.RequiredArgsConstructor;

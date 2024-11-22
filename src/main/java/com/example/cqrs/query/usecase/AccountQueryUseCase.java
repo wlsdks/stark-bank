@@ -1,4 +1,4 @@
-package com.example.cqrs.query.service;
+package com.example.cqrs.query.usecase;
 
 import com.example.cqrs.query.entity.AccountView;
 import com.example.cqrs.command.entity.event.AbstractAccountEvent;

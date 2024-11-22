@@ -9,10 +9,11 @@ import java.util.List;
 
 /**
  * writeEntityManagerFactory와 writeTransactionManager 사용
+ *
  * @Primary로 지정되어 있어 별도 설정 없이도 쓰기 DB 사용
  */
 @Repository
-public interface AccountEventRepository extends JpaRepository<AbstractAccountEvent, Long> {
+public interface AccountEventStoreRepository extends JpaRepository<AbstractAccountEvent, Long> {
 
     List<AbstractAccountEvent> findByAccountIdAndEventDateAfterOrderByEventDateAsc(
             String accountId, LocalDateTime afterDate);

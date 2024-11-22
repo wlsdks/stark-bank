@@ -1,4 +1,4 @@
-package com.example.cqrs.command.domain;
+package com.example.cqrs.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

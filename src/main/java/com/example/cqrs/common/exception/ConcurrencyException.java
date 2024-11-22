@@ -1,4 +1,4 @@
-package com.example.cqrs.exception;
+package com.example.cqrs.common.exception;
 
 public class ConcurrencyException extends RuntimeException {
 

@@ -1,4 +1,4 @@
-package com.example.cqrs.command.service.useCase;
+package com.example.cqrs.command.useCase;
 
 public interface AccountCommandUseCase {
 

@@ -1,4 +1,4 @@
-package com.example.cqrs.command.service.useCase;
+package com.example.cqrs.command.useCase;
 
 import com.example.cqrs.command.entity.event.AbstractAccountEvent;
 

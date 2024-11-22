@@ -1,10 +1,10 @@
 package com.example.cqrs.query.controller;
 
-import com.example.cqrs.dto.AccountDto;
-import com.example.cqrs.dto.AccountEventDto;
+import com.example.cqrs.common.dto.AccountDto;
+import com.example.cqrs.common.dto.AccountEventDto;
 import com.example.cqrs.query.entity.AccountView;
 import com.example.cqrs.command.entity.event.AbstractAccountEvent;
-import com.example.cqrs.query.service.AccountQueryUseCase;
+import com.example.cqrs.query.usecase.AccountQueryUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

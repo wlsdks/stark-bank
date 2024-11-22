@@ -1,4 +1,4 @@
-package com.example.cqrs.dto;
+package com.example.cqrs.common.dto;
 
 import com.example.cqrs.query.entity.AccountView;
 import lombok.AccessLevel;

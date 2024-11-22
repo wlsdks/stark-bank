@@ -1,12 +1,12 @@
-package com.example.cqrs.service;
+package com.example.cqrs.common.service;
 
 import com.example.cqrs.command.entity.event.AccountCreatedEvent;
 import com.example.cqrs.command.entity.event.MoneyDepositedEvent;
 import com.example.cqrs.command.entity.event.MoneyWithdrawnEvent;
 import com.example.cqrs.command.entity.event.AbstractAccountEvent;
-import com.example.cqrs.event.listener.AccountEventListener;
-import com.example.cqrs.exception.EventReplayException;
-import com.example.cqrs.command.service.useCase.AccountEventStoreUseCase;
+import com.example.cqrs.common.event.listener.AccountEventListener;
+import com.example.cqrs.common.exception.EventReplayException;
+import com.example.cqrs.command.useCase.AccountEventStoreUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.support.RetryTemplate;

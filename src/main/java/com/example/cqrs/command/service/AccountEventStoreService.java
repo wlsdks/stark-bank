@@ -1,8 +1,8 @@
 package com.example.cqrs.command.service;
 
 import com.example.cqrs.command.entity.event.AbstractAccountEvent;
-import com.example.cqrs.command.repository.AccountEventRepository;
-import com.example.cqrs.command.service.useCase.AccountEventStoreUseCase;
+import com.example.cqrs.command.repository.AccountEventStoreRepository;
+import com.example.cqrs.command.useCase.AccountEventStoreUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +18,7 @@ import java.util.List;
 @Service
 public class AccountEventStoreService implements AccountEventStoreUseCase {
 
-    private final AccountEventRepository eventRepository;
+    private final AccountEventStoreRepository eventRepository;
 
     /**
      * 새로운 이벤트를 저장합니다.
