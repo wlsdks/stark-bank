@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  */
 @Configuration
 @EnableJpaRepositories(
-        basePackages = "com.example.cqrs.repository.read",         // 이 패키지 하위는
+        basePackages = "com.example.cqrs.query.repository",        // 이 패키지 하위는
         entityManagerFactoryRef = "readEntityManagerFactory",      // 읽기 EntityManager 사용
         transactionManagerRef = "readTransactionManager"           // 읽기 TransactionManager 사용
 )

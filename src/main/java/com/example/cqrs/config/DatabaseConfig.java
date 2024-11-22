@@ -72,8 +72,8 @@ public class DatabaseConfig {
         return builder
                 .dataSource(dataSource)
                 .packages(
-                        "com.example.cqrs.entity.write",  // 쓰기 엔티티 패키지
-                        "com.example.cqrs.entity.write.event"  // 이벤트 엔티티 패키지
+                        "com.example.cqrs.command.entity",  // 쓰기 엔티티 패키지
+                        "com.example.cqrs.command.entity.event"  // 이벤트 엔티티 패키지
                 )
                 .persistenceUnit("write")
                 .properties(hibernateProperties())
@@ -94,7 +94,7 @@ public class DatabaseConfig {
             @Qualifier("readDataSource") DataSource dataSource) {
         return builder
                 .dataSource(dataSource)
-                .packages("com.example.cqrs.entity.read")  // 읽기 엔티티 패키지
+                .packages("com.example.cqrs.query.entity")  // 읽기 엔티티 패키지
                 .persistenceUnit("read")
                 .properties(hibernateProperties())
                 .build();
