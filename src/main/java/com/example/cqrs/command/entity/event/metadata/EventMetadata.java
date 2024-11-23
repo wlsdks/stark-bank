@@ -26,8 +26,7 @@ public class EventMetadata {
     private EventSchemaVersion schemaVersion;  // 이벤트 스키마 버전
 
     // factory method
-    public static EventMetadata of(String correlationId, String causationId,
-                                   String userId) {
+    public static EventMetadata of(String correlationId, String causationId, String userId) {
         return EventMetadata.builder()
                 .correlationId(correlationId)
                 .causationId(causationId)

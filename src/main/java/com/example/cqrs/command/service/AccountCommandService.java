@@ -68,7 +68,7 @@ public class AccountCommandService implements AccountCommandUseCase {
 
         // 계좌 생성 이벤트 생성 및 저장
         String correlationId = UUID.randomUUID().toString();
-        EventMetadata eventMetadata = EventMetadata.of(correlationId, request.getUserId(), null);
+        EventMetadata eventMetadata = EventMetadata.of(correlationId, null, request.getUserId());
         AccountCreatedEvent event = AccountCreatedEvent.of(
                 request.getAccountId(),
                 LocalDateTime.now(),
@@ -97,7 +97,7 @@ public class AccountCommandService implements AccountCommandUseCase {
 
         // 입금 이벤트 생성 및 저장
         String correlationId = UUID.randomUUID().toString();
-        EventMetadata eventMetadata = EventMetadata.of(correlationId, request.getUserId(), null);
+        EventMetadata eventMetadata = EventMetadata.of(correlationId, null, request.getUserId());
         MoneyDepositedEvent event = MoneyDepositedEvent.of(
                 request.getAccountId(),
                 LocalDateTime.now(),
@@ -131,7 +131,7 @@ public class AccountCommandService implements AccountCommandUseCase {
 
         // 출금 이벤트 생성 및 저장
         String correlationId = UUID.randomUUID().toString();
-        EventMetadata eventMetadata = EventMetadata.of(correlationId, request.getUserId(), null);
+        EventMetadata eventMetadata = EventMetadata.of(correlationId, null, request.getUserId());
         MoneyWithdrawnEvent event = MoneyWithdrawnEvent.of(
                 request.getAccountId(),
                 LocalDateTime.now(),
@@ -167,7 +167,7 @@ public class AccountCommandService implements AccountCommandUseCase {
         String correlationId = UUID.randomUUID().toString();
 
         // 출금 이벤트 생성
-        EventMetadata withdrawMetadata = EventMetadata.of(correlationId, request.getUserId(), null);
+        EventMetadata withdrawMetadata = EventMetadata.of(correlationId, null, request.getUserId());
         MoneyWithdrawnEvent withdrawEvent = MoneyWithdrawnEvent.of(
                 request.getFromAccountId(),
                 LocalDateTime.now(),
@@ -176,7 +176,7 @@ public class AccountCommandService implements AccountCommandUseCase {
         );
 
         // 입금 이벤트 생성 (출금 이벤트를 원인으로 지정)
-        EventMetadata depositMetadata = EventMetadata.of(correlationId, request.getUserId(), String.valueOf(withdrawEvent.getId()));
+        EventMetadata depositMetadata = EventMetadata.of(correlationId, String.valueOf(withdrawEvent.getId()), request.getUserId());
         MoneyDepositedEvent depositEvent = MoneyDepositedEvent.of(
                 request.getToAccountId(),
                 LocalDateTime.now(),

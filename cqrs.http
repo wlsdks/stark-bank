@@ -10,7 +10,7 @@ X-User-Id: user123
 POST http://localhost:8100/accounts/1001/withdraw?amount=5000
 X-User-Id: user123
 
-### 계좌 이
+### 계좌 이체
 POST http://localhost:8100/accounts/transfer
 X-User-Id: user123
 Content-Type: application/json
@@ -18,5 +18,5 @@ Content-Type: application/json
 {
   "fromAccountId": "1001",
   "toAccountId": "1002",
-  "amount": 5000
+  "amount": 1000
 }
