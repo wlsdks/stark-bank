@@ -1,22 +1,22 @@
 ### 계좌 생성
-POST http://localhost:8100/accounts/1003
+POST http://localhost:8100/accounts/1000
 X-User-Id: user123
 
 ### 입금
-POST http://localhost:8100/accounts/1003/deposit?amount=10000
+POST http://localhost:8100/accounts/1000/deposit?amount=10000
 X-User-Id: user123
 
 ### 출금
-POST http://localhost:8100/accounts/1003/withdraw?amount=5000
+POST http://localhost:8100/accounts/1000/withdraw?amount=5000
 X-User-Id: user123
 
-### 계좌 이체
+### 계좌 이체 (사용하려면 계좌가 2개는 있어야 합니다.)
 POST http://localhost:8100/accounts/transfer
 X-User-Id: user123
 Content-Type: application/json
 
 {
-  "fromAccountId": "1001",
-  "toAccountId": "1002",
+  "fromAccountId": "1000",
+  "toAccountId": "1001",
   "amount": 1000
 }
