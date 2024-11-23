@@ -18,4 +18,9 @@ public class MoneyWithdrawnEvent extends AbstractAccountEvent {
         super(accountId, eventDate, amount, metadata);
     }
 
+    // factory method
+    public static MoneyWithdrawnEvent of(String accountId, LocalDateTime now, double amount, EventMetadata eventMetadata) {
+        return new MoneyWithdrawnEvent(accountId, now, amount, eventMetadata);
+    }
+
 }

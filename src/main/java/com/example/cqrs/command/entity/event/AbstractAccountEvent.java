@@ -29,11 +29,15 @@ public abstract class AbstractAccountEvent {
     @Column(nullable = true)
     private Double amount;
 
-    @Version
-    private Long version;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private EventStatus status = EventStatus.PENDING;  // 이벤트 처리 상태
 
     @Embedded
-    private EventMetadata metadata;
+    private EventMetadata metadata; // 이벤트 메타데이터
+
+    @Version
+    private Long version; // JPA 낙관적 잠금용 버전
 
     protected AbstractAccountEvent(String accountId, LocalDateTime eventDate,
                                    Double amount, EventMetadata metadata) {
@@ -41,6 +45,14 @@ public abstract class AbstractAccountEvent {
         this.eventDate = eventDate;
         this.amount = amount;
         this.metadata = metadata;
+    }
+
+    public void markAsProcessed() {
+        this.status = EventStatus.PROCESSED;
+    }
+
+    public void markAsFailed() {
+        this.status = EventStatus.FAILED;
     }
 
 }

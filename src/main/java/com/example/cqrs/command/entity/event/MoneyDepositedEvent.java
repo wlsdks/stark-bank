@@ -14,8 +14,13 @@ import java.time.LocalDateTime;
 public class MoneyDepositedEvent extends AbstractAccountEvent {
 
     public MoneyDepositedEvent(String accountId, LocalDateTime eventDate,
-                              double amount, EventMetadata metadata) {
+                               double amount, EventMetadata metadata) {
         super(accountId, eventDate, amount, metadata);
+    }
+
+    // factory method
+    public static MoneyDepositedEvent of(String accountId, LocalDateTime now, double amount, EventMetadata eventMetadata) {
+        return new MoneyDepositedEvent(accountId, now, amount, eventMetadata);
     }
 
 }

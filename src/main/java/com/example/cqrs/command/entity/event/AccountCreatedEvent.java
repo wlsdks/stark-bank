@@ -18,4 +18,9 @@ public class AccountCreatedEvent extends AbstractAccountEvent {
         super(accountId, eventDate, amount, metadata);
     }
 
+    // factory method
+    public static AccountCreatedEvent of(String accountId, LocalDateTime eventDate, double amount, EventMetadata metadata) {
+        return new AccountCreatedEvent(accountId, eventDate, amount, metadata);
+    }
+
 }

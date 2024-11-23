@@ -35,6 +35,7 @@ import java.util.UUID;
  * - 계좌 생성
  * - 입금 처리
  * - 출금 처리
+ * - 계좌 이체
  * - 스냅샷 관리
  */
 @Transactional(readOnly = true)
@@ -67,12 +68,12 @@ public class AccountCommandService implements AccountCommandUseCase {
 
         // 계좌 생성 이벤트 생성 및 저장
         String correlationId = UUID.randomUUID().toString();
-        EventMetadata metadata = createEventMetadata(correlationId, request.getUserId(), null);
-        AccountCreatedEvent event = new AccountCreatedEvent(
+        EventMetadata eventMetadata = EventMetadata.of(correlationId, request.getUserId(), null);
+        AccountCreatedEvent event = AccountCreatedEvent.of(
                 request.getAccountId(),
                 LocalDateTime.now(),
                 0.0,
-                metadata
+                eventMetadata
         );
 
         accountEventStoreUseCase.save(event);
@@ -96,12 +97,12 @@ public class AccountCommandService implements AccountCommandUseCase {
 
         // 입금 이벤트 생성 및 저장
         String correlationId = UUID.randomUUID().toString();
-        EventMetadata metadata = createEventMetadata(correlationId, request.getUserId(), null);
-        MoneyDepositedEvent event = new MoneyDepositedEvent(
+        EventMetadata eventMetadata = EventMetadata.of(correlationId, request.getUserId(), null);
+        MoneyDepositedEvent event = MoneyDepositedEvent.of(
                 request.getAccountId(),
                 LocalDateTime.now(),
                 request.getAmount(),
-                metadata
+                eventMetadata
         );
 
         try {
@@ -130,12 +131,12 @@ public class AccountCommandService implements AccountCommandUseCase {
 
         // 출금 이벤트 생성 및 저장
         String correlationId = UUID.randomUUID().toString();
-        EventMetadata metadata = createEventMetadata(correlationId, request.getUserId(), null);
-        MoneyWithdrawnEvent event = new MoneyWithdrawnEvent(
+        EventMetadata eventMetadata = EventMetadata.of(correlationId, request.getUserId(), null);
+        MoneyWithdrawnEvent event = MoneyWithdrawnEvent.of(
                 request.getAccountId(),
                 LocalDateTime.now(),
                 request.getAmount(),
-                metadata
+                eventMetadata
         );
 
         try {
@@ -153,7 +154,7 @@ public class AccountCommandService implements AccountCommandUseCase {
      *
      * @param request 이체 요청 DTO
      * @throws IllegalArgumentException 금액이 유효하지 않거나 잔액이 부족한 경우
-     * @throws ConcurrencyException 동시성 충돌이 발생한 경우
+     * @throws ConcurrencyException     동시성 충돌이 발생한 경우
      */
     @Transactional
     @Override
@@ -166,8 +167,8 @@ public class AccountCommandService implements AccountCommandUseCase {
         String correlationId = UUID.randomUUID().toString();
 
         // 출금 이벤트 생성
-        EventMetadata withdrawMetadata = createEventMetadata(correlationId, request.getUserId(), null);
-        MoneyWithdrawnEvent withdrawEvent = new MoneyWithdrawnEvent(
+        EventMetadata withdrawMetadata = EventMetadata.of(correlationId, request.getUserId(), null);
+        MoneyWithdrawnEvent withdrawEvent = MoneyWithdrawnEvent.of(
                 request.getFromAccountId(),
                 LocalDateTime.now(),
                 request.getAmount(),
@@ -175,8 +176,8 @@ public class AccountCommandService implements AccountCommandUseCase {
         );
 
         // 입금 이벤트 생성 (출금 이벤트를 원인으로 지정)
-        EventMetadata depositMetadata = createEventMetadata(correlationId, request.getUserId(), String.valueOf(withdrawEvent.getId()));
-        MoneyDepositedEvent depositEvent = new MoneyDepositedEvent(
+        EventMetadata depositMetadata = EventMetadata.of(correlationId, request.getUserId(), String.valueOf(withdrawEvent.getId()));
+        MoneyDepositedEvent depositEvent = MoneyDepositedEvent.of(
                 request.getToAccountId(),
                 LocalDateTime.now(),
                 request.getAmount(),
@@ -193,23 +194,6 @@ public class AccountCommandService implements AccountCommandUseCase {
         } catch (ObjectOptimisticLockingFailureException e) {
             throw new ConcurrencyException("동시성 충돌이 발생했습니다. 다시 시도해주세요.");
         }
-    }
-
-    /**
-     * 이벤트 메타데이터를 생성합니다.
-     *
-     * @param correlationId 연관 거래 ID (같은 거래에 속한 이벤트들은 동일한 ID를 가짐)
-     * @param userId        사용자 ID
-     * @param causationId   원인이 되는 이벤트 ID (없을 수 있음)
-     * @return 생성된 메타데이터
-     */
-    private EventMetadata createEventMetadata(String correlationId, String userId, String causationId) {
-        return EventMetadata.builder()
-                .correlationId(correlationId)  // 기존에는 매번 새로운 UUID를 생성했지만, 이제는 파라미터로 받은 것을 사용
-                .causationId(causationId)      // 이벤트 간의 인과 관계를 표현
-                .userId(userId)
-                .eventVersion("1.0")
-                .build();
     }
 
     /**

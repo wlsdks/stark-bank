@@ -1,6 +1,7 @@
 package com.example.cqrs.query.dto;
 
 import com.example.cqrs.command.entity.event.metadata.EventMetadata;
+import com.example.cqrs.command.entity.event.metadata.EventSchemaVersion;
 import lombok.*;
 
 /**
@@ -15,7 +16,7 @@ public class EventMetadataResponse {
     private String correlationId;
     private String causationId;
     private String userId;
-    private String eventVersion;
+    private EventSchemaVersion schemaVersion;  // 이벤트 스키마 버전
 
     // factory method
     public static EventMetadataResponse from(EventMetadata metadata) {
@@ -23,7 +24,7 @@ public class EventMetadataResponse {
                 .correlationId(metadata.getCorrelationId())
                 .causationId(metadata.getCausationId())
                 .userId(metadata.getUserId())
-                .eventVersion(metadata.getEventVersion())
+                .schemaVersion(metadata.getSchemaVersion())
                 .build();
     }
 

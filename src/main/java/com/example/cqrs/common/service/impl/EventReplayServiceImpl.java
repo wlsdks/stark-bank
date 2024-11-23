@@ -1,16 +1,12 @@
 package com.example.cqrs.common.service.impl;
 
-import com.example.cqrs.command.entity.event.AccountCreatedEvent;
-import com.example.cqrs.command.entity.event.MoneyDepositedEvent;
-import com.example.cqrs.command.entity.event.MoneyWithdrawnEvent;
-import com.example.cqrs.command.entity.event.AbstractAccountEvent;
+import com.example.cqrs.command.entity.event.*;
+import com.example.cqrs.command.usecase.AccountEventStoreUseCase;
 import com.example.cqrs.common.event.listener.AccountEventListener;
 import com.example.cqrs.common.exception.EventReplayException;
-import com.example.cqrs.command.usecase.AccountEventStoreUseCase;
 import com.example.cqrs.common.service.EventReplayService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,8 +31,7 @@ import java.util.List;
 public class EventReplayServiceImpl implements EventReplayService {
 
     private final AccountEventStoreUseCase accountEventStoreUseCase;  // 이벤트 저장소
-    private final AccountEventListener eventHandler;     // 이벤트 핸들러
-    private final RetryTemplate retryTemplate;          // 재시도 템플릿
+    private final AccountEventListener accountEventListener;     // 이벤트 핸들러
 
     /**
      * 특정 계좌의 이벤트들을 주어진 날짜부터 재생합니다.
@@ -46,28 +41,26 @@ public class EventReplayServiceImpl implements EventReplayService {
      * @param fromDate  이벤트 재생을 시작할 날짜
      * @throws EventReplayException 이벤트 재생 중 오류 발생 시
      */
+    @Override
     @Transactional
     public void replayEvents(String accountId, LocalDateTime fromDate) {
-        log.info("Starting event replay for account: {} from date: {}", accountId, fromDate);
+        log.info("Starting event replay for account {} from {}", accountId, fromDate);
 
-        // 지정된 날짜 이후의 모든 이벤트 조회
         List<AbstractAccountEvent> events = accountEventStoreUseCase.getEvents(accountId, fromDate);
+        log.debug("Found {} events to replay", events.size());
 
-        // 각 이벤트를 재시도 로직과 함께 처리
-        events.forEach(event -> {
-            try {
-                retryTemplate.execute(context -> {
-                    processEvent(event);
-                    return null;
-                });
-            } catch (Exception e) {
-                log.error("Failed to replay event after retries. Event: {}", event, e);
-                throw new EventReplayException("이벤트 재생 실패: " + event.getClass().getSimpleName(), e);
+        for (AbstractAccountEvent event : events) {
+            if (event.getStatus() != EventStatus.PROCESSED) {
+                try {
+                    replayEvent(event);
+                    event.markAsProcessed();  // 성공적으로 처리된 이벤트 표시
+                } catch (Exception e) {
+                    log.error("Failed to replay event: {}", event.getId(), e);
+                    event.markAsFailed();     // 실패한 이벤트 표시
+                    throw new EventReplayException("이벤트 재처리 실패: " + event.getId(), e);
+                }
             }
-        });
-
-        log.info("Completed event replay for account: {}. Processed {} events",
-                accountId, events.size());
+        }
     }
 
     /**
@@ -76,18 +69,21 @@ public class EventReplayServiceImpl implements EventReplayService {
      *
      * @param event 처리할 이벤트
      */
-    private void processEvent(AbstractAccountEvent event) {
-        log.debug("Processing event: {}", event.getClass().getSimpleName());
+    private void replayEvent(AbstractAccountEvent event) {
+        log.debug("Replaying event: {}", event.getId());
 
-        // 이벤트 타입에 따른 처리
-        if (event instanceof AccountCreatedEvent createdEvent) {
-            eventHandler.handle(createdEvent);         // 계좌 생성 이벤트 처리
-        } else if (event instanceof MoneyDepositedEvent depositedEvent) {
-            eventHandler.handle(depositedEvent);       // 입금 이벤트 처리
-        } else if (event instanceof MoneyWithdrawnEvent withdrawnEvent) {
-            eventHandler.handle(withdrawnEvent);       // 출금 이벤트 처리
-        } else {
-            log.warn("Unknown event type: {}", event.getClass().getName());
+        switch (event.getClass().getSimpleName()) {
+            case "AccountCreatedEvent":
+                accountEventListener.handle((AccountCreatedEvent) event);
+                break;
+            case "MoneyDepositedEvent":
+                accountEventListener.handle((MoneyDepositedEvent) event);
+                break;
+            case "MoneyWithdrawnEvent":
+                accountEventListener.handle((MoneyWithdrawnEvent) event);
+                break;
+            default:
+                log.warn("Unknown event type: {}", event.getClass().getSimpleName());
         }
     }
 

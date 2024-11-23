@@ -1,6 +1,7 @@
 package com.example.cqrs.query.dto;
 
 import com.example.cqrs.command.entity.event.AbstractAccountEvent;
+import com.example.cqrs.command.entity.event.EventStatus;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -14,11 +15,12 @@ import java.time.LocalDateTime;
 @Getter
 public class AccountTransactionResponse {
 
-    private String accountId;
-    private String eventType;
-    private Double amount;
-    private LocalDateTime eventDate;
-    private EventMetadataResponse metadata;
+    private String accountId;               // 계좌 ID
+    private String eventType;               // 이벤트 타입
+    private Double amount;                  // 거래 금액
+    private LocalDateTime eventDate;        // 이벤트 발생 일시
+    private EventStatus status;             // 이벤트 상태
+    private EventMetadataResponse metadata; // 이벤트 메타데이터
 
     // factory method
     public static AccountTransactionResponse from(AbstractAccountEvent event) {

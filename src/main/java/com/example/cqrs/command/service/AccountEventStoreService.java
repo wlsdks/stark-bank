@@ -135,7 +135,7 @@ public class AccountEventStoreService implements AccountEventStoreUseCase {
         if (event.getMetadata().getUserId() == null) {
             throw new IllegalArgumentException("사용자 ID가 누락되었습니다.");
         }
-        if (event.getMetadata().getEventVersion() == null) {
+        if (event.getMetadata().getSchemaVersion() == null) {
             throw new IllegalArgumentException("이벤트 버전이 누락되었습니다.");
         }
     }
