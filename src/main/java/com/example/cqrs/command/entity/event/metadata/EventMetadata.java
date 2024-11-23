@@ -1,5 +1,6 @@
 package com.example.cqrs.command.entity.event.metadata;
 
+import com.example.cqrs.command.entity.event.enumerate.EventSchemaVersion;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;

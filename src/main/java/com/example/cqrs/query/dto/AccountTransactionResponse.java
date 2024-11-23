@@ -1,7 +1,7 @@
 package com.example.cqrs.query.dto;
 
 import com.example.cqrs.command.entity.event.AbstractAccountEvent;
-import com.example.cqrs.command.entity.event.EventStatus;
+import com.example.cqrs.command.entity.event.enumerate.EventStatus;
 import lombok.*;
 
 import java.time.LocalDateTime;

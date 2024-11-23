@@ -1,4 +1,4 @@
-package com.example.cqrs.command.entity.event.metadata;
+package com.example.cqrs.command.entity.event.enumerate;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

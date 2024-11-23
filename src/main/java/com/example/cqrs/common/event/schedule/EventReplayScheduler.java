@@ -1,7 +1,7 @@
 package com.example.cqrs.common.event.schedule;
 
 import com.example.cqrs.command.entity.event.AbstractAccountEvent;
-import com.example.cqrs.command.entity.event.EventStatus;
+import com.example.cqrs.command.entity.event.enumerate.EventStatus;
 import com.example.cqrs.command.usecase.AccountEventStoreUseCase;
 import com.example.cqrs.common.service.EventReplayService;
 import com.example.cqrs.query.usecase.AccountQueryUseCase;
@@ -21,7 +21,7 @@ public class EventReplayScheduler {
     private final EventReplayService eventReplayService;
     private final AccountQueryUseCase accountQueryUseCase;
     private final AccountEventStoreUseCase eventStoreUseCase;
-    
+
     /**
      * @apiNote 매일 자정에 실행되는 스케줄러로, 모든 활성 계좌의 이벤트를 동기화합니다.
      */

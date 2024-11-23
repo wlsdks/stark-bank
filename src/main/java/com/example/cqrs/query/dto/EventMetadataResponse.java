@@ -1,7 +1,7 @@
 package com.example.cqrs.query.dto;
 
 import com.example.cqrs.command.entity.event.metadata.EventMetadata;
-import com.example.cqrs.command.entity.event.metadata.EventSchemaVersion;
+import com.example.cqrs.command.entity.event.enumerate.EventSchemaVersion;
 import lombok.*;
 
 /**

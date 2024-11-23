@@ -1,5 +1,6 @@
 package com.example.cqrs.command.entity.event;
 
+import com.example.cqrs.command.entity.event.enumerate.EventStatus;
 import com.example.cqrs.command.entity.event.metadata.EventMetadata;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
