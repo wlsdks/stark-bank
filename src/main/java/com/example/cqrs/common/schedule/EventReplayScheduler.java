@@ -1,4 +1,4 @@
-package com.example.cqrs.common.event.schedule;
+package com.example.cqrs.common.schedule;
 
 import com.example.cqrs.command.entity.event.AbstractAccountEvent;
 import com.example.cqrs.command.entity.event.enumerate.EventStatus;

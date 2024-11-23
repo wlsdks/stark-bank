@@ -3,7 +3,7 @@ package com.example.cqrs.common.service.impl;
 import com.example.cqrs.command.entity.event.*;
 import com.example.cqrs.command.entity.event.enumerate.EventStatus;
 import com.example.cqrs.command.usecase.AccountEventStoreUseCase;
-import com.example.cqrs.common.event.listener.AccountEventListener;
+import com.example.cqrs.query.event.listener.AccountEventListener;
 import com.example.cqrs.common.exception.EventReplayException;
 import com.example.cqrs.common.service.EventReplayService;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.example.cqrs.common.event.listener;
+package com.example.cqrs.query.event.listener;
 
 import com.example.cqrs.command.entity.event.AbstractAccountEvent;
 import com.example.cqrs.command.entity.event.AccountCreatedEvent;

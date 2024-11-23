@@ -1,13 +1,13 @@
 ### 계좌 생성
-POST http://localhost:8100/accounts/1001
+POST http://localhost:8100/accounts/1003
 X-User-Id: user123
 
 ### 입금
-POST http://localhost:8100/accounts/1001/deposit?amount=10000
+POST http://localhost:8100/accounts/1003/deposit?amount=10000
 X-User-Id: user123
 
 ### 출금
-POST http://localhost:8100/accounts/1001/withdraw?amount=5000
+POST http://localhost:8100/accounts/1003/withdraw?amount=5000
 X-User-Id: user123
 
 ### 계좌 이체
