@@ -74,13 +74,13 @@ public class EventReplayServiceImpl implements EventReplayService {
 
         switch (event.getClass().getSimpleName()) {
             case "AccountCreatedEvent":
-                accountEventListener.handle((AccountCreatedEvent) event);
+                accountEventListener.handleAccountCreate((AccountCreatedEvent) event);
                 break;
             case "MoneyDepositedEvent":
-                accountEventListener.handle((MoneyDepositedEvent) event);
+                accountEventListener.handleDeposit((MoneyDepositedEvent) event);
                 break;
             case "MoneyWithdrawnEvent":
-                accountEventListener.handle((MoneyWithdrawnEvent) event);
+                accountEventListener.handleWithdraw((MoneyWithdrawnEvent) event);
                 break;
             default:
                 log.warn("Unknown event type: {}", event.getClass().getSimpleName());

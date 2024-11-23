@@ -28,10 +28,24 @@ public class AccountEventStoreService implements AccountEventStoreUseCase {
      * @throws IllegalArgumentException 필수 필드가 누락된 경우
      * @throws IllegalStateException    이벤트 시간 순서가 올바르지 않은 경우
      */
-    @Override
     @Transactional
+    @Override
     public void save(AbstractAccountEvent event) {
         validateEvent(event);
+        eventRepository.save(event);
+    }
+
+    /**
+     * 새로운 이벤트를 저장합니다.
+     * 저장 전 이벤트의 유효성을 검증합니다.
+     *
+     * @param event 저장할 이벤트
+     * @throws IllegalArgumentException 필수 필드가 누락된 경우
+     * @throws IllegalStateException    이벤트 시간 순서가 올바르지 않은 경우
+     */
+    @Transactional
+    @Override
+    public void saveEventStatus(AbstractAccountEvent event) {
         eventRepository.save(event);
     }
 
@@ -113,7 +127,7 @@ public class AccountEventStoreService implements AccountEventStoreUseCase {
                 .findByAccountIdOrderByEventDateDesc(event.getAccountId());
 
         if (!existingEvents.isEmpty()) {
-            LocalDateTime lastEventTime = existingEvents.get(0).getEventDate();
+            LocalDateTime lastEventTime = existingEvents.getFirst().getEventDate();
             if (!event.getEventDate().isAfter(lastEventTime)) {
                 throw new IllegalStateException("이벤트의 시간 순서가 올바르지 않습니다.");
             }

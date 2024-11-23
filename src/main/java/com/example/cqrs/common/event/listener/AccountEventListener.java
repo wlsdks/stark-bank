@@ -1,11 +1,12 @@
 package com.example.cqrs.common.event.listener;
 
-import com.example.cqrs.query.entity.AccountView;
+import com.example.cqrs.command.entity.event.AbstractAccountEvent;
 import com.example.cqrs.command.entity.event.AccountCreatedEvent;
 import com.example.cqrs.command.entity.event.MoneyDepositedEvent;
 import com.example.cqrs.command.entity.event.MoneyWithdrawnEvent;
-import com.example.cqrs.command.entity.event.AbstractAccountEvent;
+import com.example.cqrs.command.usecase.AccountEventStoreUseCase;
 import com.example.cqrs.common.exception.EventHandlingException;
+import com.example.cqrs.query.entity.AccountView;
 import com.example.cqrs.query.repository.AccountViewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 public class AccountEventListener {
 
     private final AccountViewRepository accountViewRepository;
+    private final AccountEventStoreUseCase accountEventStoreUseCase;
     private final RetryTemplate retryTemplate;
 
     /**
@@ -38,8 +40,8 @@ public class AccountEventListener {
      */
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void handle(AccountCreatedEvent event) {
-        log.info("Handling AccountCreatedEvent: {}", event.getAccountId());
+    public void handleAccountCreate(AccountCreatedEvent event) {
+        log.info("계좌 생성 이벤트 시작: {}", event.getAccountId());
         try {
             retryTemplate.execute(context -> {
                 AccountView account = AccountView.of(
@@ -47,11 +49,15 @@ public class AccountEventListener {
                         event.getAmount()
                 );
                 accountViewRepository.save(account);
-                log.info("Successfully created read model for account: {}", event.getAccountId());
+                event.markAsProcessed();  // 이벤트 처리 완료 표시
+                accountEventStoreUseCase.saveEventStatus(event);  // 상태 업데이트
+                log.info("계좌 생성 이벤트 처리 완료: {}", event.getAccountId());
                 return null;
             });
         } catch (Exception e) {
-            log.error("Failed to handle AccountCreatedEvent after retries: {}", event.getAccountId(), e);
+            log.error("계좌 생성 이벤트 처리 실패: {}", event.getAccountId(), e);
+            event.markAsFailed();  // 이벤트 처리 실패 표시
+            accountEventStoreUseCase.saveEventStatus(event);  // 실패 상태 업데이트
             throw new EventHandlingException("계좌 생성 이벤트 처리 실패", e);
         }
     }
@@ -64,8 +70,8 @@ public class AccountEventListener {
      */
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void handle(MoneyDepositedEvent event) {
-        log.info("Handling MoneyDepositedEvent for account: {}", event.getAccountId());
+    public void handleDeposit(MoneyDepositedEvent event) {
+        log.info("계좌 입금 이벤트 처리: {}", event.getAccountId());
         updateBalanceWithRetry(event, true);
     }
 
@@ -77,8 +83,8 @@ public class AccountEventListener {
      */
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void handle(MoneyWithdrawnEvent event) {
-        log.info("Handling MoneyWithdrawnEvent for account: {}", event.getAccountId());
+    public void handleWithdraw(MoneyWithdrawnEvent event) {
+        log.info("계좌 출금 이벤트 처리: {}", event.getAccountId());
         updateBalanceWithRetry(event, false);
     }
 
@@ -91,14 +97,17 @@ public class AccountEventListener {
      */
     private void updateBalanceWithRetry(AbstractAccountEvent event, boolean isDeposit) {
         try {
-            // execute 블록 안의 코드가 예외를 던지면 자동으로 재시도됩니다
             retryTemplate.execute(context -> {
-                updateBalance(event, isDeposit); // 실패하면 재시도됨
-                log.info("Successfully updated balance for account: {}", event.getAccountId());
+                updateBalance(event, isDeposit);
+                event.markAsProcessed();  // 이벤트 처리 완료 표시
+                accountEventStoreUseCase.saveEventStatus(event);  // 상태 업데이트
+                log.info("잔액 업데이트 완료: {}", event.getAccountId());
                 return null;
             });
         } catch (Exception e) {
-            log.error("Failed to update balance after retries: {}", event.getAccountId(), e);
+            log.error("잔액 업데이트 실패: {}", event.getAccountId(), e);
+            event.markAsFailed();  // 이벤트 처리 실패 표시
+            accountEventStoreUseCase.saveEventStatus(event);  // 실패 상태 업데이트
             throw new EventHandlingException("잔액 업데이트 실패", e);
         }
     }

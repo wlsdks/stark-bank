@@ -13,6 +13,8 @@ public interface AccountEventStoreUseCase {
 
     void save(AbstractAccountEvent event);
 
+    void saveEventStatus(AbstractAccountEvent event);
+
     List<AbstractAccountEvent> getEvents(String accountId, LocalDateTime after);
 
     List<AbstractAccountEvent> getAllEvents(String accountId);
