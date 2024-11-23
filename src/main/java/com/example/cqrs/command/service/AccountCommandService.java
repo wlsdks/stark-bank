@@ -66,7 +66,7 @@ public class AccountCommandService implements AccountCommandUseCase {
             throw new IllegalArgumentException("이미 존재하는 계좌입니다.");
         }
 
-        // 계좌 생성 이벤트 생성 및 저장
+        // 계좌 생성 이벤트 객체 생성
         String correlationId = UUID.randomUUID().toString();
         EventMetadata eventMetadata = EventMetadata.of(correlationId, null, request.getUserId());
         AccountCreatedEvent event = AccountCreatedEvent.of(
@@ -76,8 +76,11 @@ public class AccountCommandService implements AccountCommandUseCase {
                 eventMetadata
         );
 
+        // 이벤트 저장 및 발행
         accountEventStoreUseCase.save(event);
         eventPublisher.publishEvent(event);
+
+        // 스냅샷 저장이 필요한지 확인하고 필요한 경우 저장합니다.
         checkAndSaveSnapshot(request.getAccountId());
     }
 
@@ -95,7 +98,7 @@ public class AccountCommandService implements AccountCommandUseCase {
         validateAmount(request.getAmount());
         Account account = loadAccount(request.getAccountId());
 
-        // 입금 이벤트 생성 및 저장
+        // 입금 이벤트 객체 생성
         String correlationId = UUID.randomUUID().toString();
         EventMetadata eventMetadata = EventMetadata.of(correlationId, null, request.getUserId());
         MoneyDepositedEvent event = MoneyDepositedEvent.of(
@@ -106,8 +109,11 @@ public class AccountCommandService implements AccountCommandUseCase {
         );
 
         try {
+            // 이벤트 저장 및 발행
             accountEventStoreUseCase.save(event);
             eventPublisher.publishEvent(event);
+
+            // 스냅샷 저장이 필요한지 확인하고 필요한 경우 저장합니다.
             checkAndSaveSnapshot(request.getAccountId());
         } catch (ObjectOptimisticLockingFailureException e) {
             throw new ConcurrencyException("동시성 충돌이 발생했습니다. 다시 시도해주세요.");
@@ -129,7 +135,7 @@ public class AccountCommandService implements AccountCommandUseCase {
         Account account = loadAccount(request.getAccountId());
         account.checkAvailableWithdraw(request.getAmount());
 
-        // 출금 이벤트 생성 및 저장
+        // 출금 이벤트 객체 생성
         String correlationId = UUID.randomUUID().toString();
         EventMetadata eventMetadata = EventMetadata.of(correlationId, null, request.getUserId());
         MoneyWithdrawnEvent event = MoneyWithdrawnEvent.of(
@@ -140,8 +146,11 @@ public class AccountCommandService implements AccountCommandUseCase {
         );
 
         try {
+            // 이벤트 저장 및 발행
             accountEventStoreUseCase.save(event);
             eventPublisher.publishEvent(event);
+
+            // 스냅샷 저장이 필요한지 확인하고 필요한 경우 저장합니다.
             checkAndSaveSnapshot(request.getAccountId());
         } catch (ObjectOptimisticLockingFailureException e) {
             throw new ConcurrencyException("동시성 충돌이 발생했습니다. 다시 시도해주세요.");
@@ -185,10 +194,13 @@ public class AccountCommandService implements AccountCommandUseCase {
         );
 
         try {
+            // 이벤트 저장 및 발행
             accountEventStoreUseCase.save(withdrawEvent);
             accountEventStoreUseCase.save(depositEvent);
             eventPublisher.publishEvent(withdrawEvent);
             eventPublisher.publishEvent(depositEvent);
+
+            // 스냅샷 저장이 필요한지 확인하고 필요한 경우 저장합니다.
             checkAndSaveSnapshot(request.getFromAccountId());
             checkAndSaveSnapshot(request.getToAccountId());
         } catch (ObjectOptimisticLockingFailureException e) {
