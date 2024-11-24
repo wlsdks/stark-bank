@@ -30,7 +30,7 @@ spring:
       pool:
         size: 5  # 스케줄링 작업을 위한 스레드 풀 크기
       thread-name-prefix: scheduler-  # 스케줄러 스레드 이름 접두사
-
+  # JPA 설정
   jpa:
     hibernate:
       ddl-auto: update
@@ -39,6 +39,11 @@ spring:
       hibernate:
         format_sql: true
         default_batch_fetch_size: 10
+  # MongoDB 설정
+  data:
+    mongodb:
+      uri: mongodb://admin:admin123@localhost:27017
+      database: cqrs  # 원하는 데이터베이스 이름
 
 # 로깅 설정
 logging:

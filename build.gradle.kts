@@ -30,6 +30,7 @@ dependencies {
 
 	// Database
 	runtimeOnly("org.postgresql:postgresql")
+	implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
 
 	// Lombok
 	compileOnly("org.projectlombok:lombok")

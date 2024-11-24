@@ -1,10 +1,10 @@
 package com.example.cqrs.common.schedule;
 
-import com.example.cqrs.command.entity.event.AbstractAccountEvent;
+import com.example.cqrs.command.entity.event.AbstractAccountEventEntity;
 import com.example.cqrs.command.entity.event.enumerate.EventStatus;
 import com.example.cqrs.command.usecase.AccountEventStoreUseCase;
 import com.example.cqrs.common.service.EventReplayService;
-import com.example.cqrs.query.usecase.AccountQueryUseCase;
+import com.example.cqrs.command.usecase.AccountUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,7 +19,7 @@ import java.util.List;
 public class EventReplayScheduler {
 
     private final EventReplayService eventReplayService;
-    private final AccountQueryUseCase accountQueryUseCase;
+    private final AccountUseCase accountUseCase;
     private final AccountEventStoreUseCase eventStoreUseCase;
 
     /**
@@ -31,13 +31,13 @@ public class EventReplayScheduler {
         LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
 
         try {
-            List<String> activeAccounts = accountQueryUseCase.getActiveAccountIds();
+            List<String> activeAccounts = accountUseCase.getActiveAccountIds();
             log.info("Found {} active accounts to sync", activeAccounts.size());
 
             for (String accountId : activeAccounts) {
                 try {
                     // 처리되지 않은 이벤트가 있는지 확인
-                    List<AbstractAccountEvent> unprocessedEvents = findUnprocessedEvents(accountId, yesterday);
+                    List<AbstractAccountEventEntity> unprocessedEvents = findUnprocessedEvents(accountId, yesterday);
 
                     if (!unprocessedEvents.isEmpty()) {
                         log.info("Found {} unprocessed events for account: {}",
@@ -65,7 +65,7 @@ public class EventReplayScheduler {
      * @return 처리되지 않은 이벤트 목록
      * @apiNote 지정된 날짜 이후에 처리되지 않은 이벤트를 조회합니다.
      */
-    private List<AbstractAccountEvent> findUnprocessedEvents(String accountId, LocalDateTime fromDate) {
+    private List<AbstractAccountEventEntity> findUnprocessedEvents(String accountId, LocalDateTime fromDate) {
         return eventStoreUseCase.getEvents(accountId, fromDate).stream()
                 .filter(event -> event.getStatus() != EventStatus.PROCESSED)
                 .toList();

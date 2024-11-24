@@ -1,4 +1,4 @@
-package com.example.cqrs.query.dto;
+package com.example.cqrs.command.dto.read;
 
 import com.example.cqrs.command.entity.event.metadata.EventMetadata;
 import com.example.cqrs.command.entity.event.enumerate.EventSchemaVersion;

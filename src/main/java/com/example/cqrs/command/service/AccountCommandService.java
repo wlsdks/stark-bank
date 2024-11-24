@@ -4,18 +4,18 @@ import com.example.cqrs.command.dto.CreateAccountRequest;
 import com.example.cqrs.command.dto.DepositRequest;
 import com.example.cqrs.command.dto.TransferRequest;
 import com.example.cqrs.command.dto.WithdrawRequest;
-import com.example.cqrs.command.entity.AccountSnapshot;
-import com.example.cqrs.command.entity.event.AbstractAccountEvent;
-import com.example.cqrs.command.entity.event.AccountCreatedEvent;
-import com.example.cqrs.command.entity.event.MoneyDepositedEvent;
-import com.example.cqrs.command.entity.event.MoneyWithdrawnEvent;
+import com.example.cqrs.command.entity.AccountEntity;
+import com.example.cqrs.command.entity.AccountSnapshotEntity;
+import com.example.cqrs.command.entity.event.*;
+import com.example.cqrs.command.entity.event.AbstractAccountEventEntity;
+import com.example.cqrs.command.entity.event.MoneyDepositedEventEntity;
 import com.example.cqrs.command.entity.event.metadata.EventMetadata;
 import com.example.cqrs.command.repository.AccountSnapshotRepository;
 import com.example.cqrs.command.usecase.AccountCommandUseCase;
 import com.example.cqrs.command.usecase.AccountEventStoreUseCase;
 import com.example.cqrs.common.exception.ConcurrencyException;
 import com.example.cqrs.domain.Account;
-import com.example.cqrs.query.repository.AccountViewRepository;
+import com.example.cqrs.command.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -45,7 +45,7 @@ public class AccountCommandService implements AccountCommandUseCase {
 
     private final AccountEventStoreUseCase accountEventStoreUseCase;    // 이벤트 저장소 UseCase
     private final AccountSnapshotRepository snapshotRepository;         // 스냅샷 저장소
-    private final AccountViewRepository accountViewRepository;          // 읽기 모델 저장소
+    private final AccountRepository accountRepository;          // 읽기 모델 저장소
     private final ApplicationEventPublisher eventPublisher;             // 이벤트 발행기
 
     // 스냅샷 생성 기준 이벤트 수
@@ -62,14 +62,18 @@ public class AccountCommandService implements AccountCommandUseCase {
     @Override
     public void createAccount(CreateAccountRequest request) {
         // 계좌 중복 검사
-        if (accountViewRepository.existsById(request.getAccountId())) {
+        if (accountRepository.existsById(request.getAccountId())) {
             throw new IllegalArgumentException("이미 존재하는 계좌입니다.");
         }
+
+        // 계좌 생성 및 저장
+        AccountEntity account = AccountEntity.of(request.getAccountId(), 0.0);
+        accountRepository.save(account);
 
         // 계좌 생성 이벤트 객체 생성
         String correlationId = UUID.randomUUID().toString();
         EventMetadata eventMetadata = EventMetadata.of(correlationId, null, request.getUserId());
-        AccountCreatedEvent event = AccountCreatedEvent.of(
+        AccountCreatedEventEntity event = AccountCreatedEventEntity.of(
                 request.getAccountId(),
                 LocalDateTime.now(),
                 0.0,
@@ -96,12 +100,17 @@ public class AccountCommandService implements AccountCommandUseCase {
     @Override
     public void depositMoney(DepositRequest request) {
         validateAmount(request.getAmount());
-        Account account = loadAccount(request.getAccountId());
+        AccountEntity account = accountRepository.findById(request.getAccountId())
+                .orElseThrow(() -> new IllegalArgumentException("계좌를 찾을 수 없습니다."));
+
+        // DB 잔액 업데이트
+        account.changeBalance(account.getBalance() + request.getAmount());
+        accountRepository.save(account);
 
         // 입금 이벤트 객체 생성
         String correlationId = UUID.randomUUID().toString();
         EventMetadata eventMetadata = EventMetadata.of(correlationId, null, request.getUserId());
-        MoneyDepositedEvent event = MoneyDepositedEvent.of(
+        MoneyDepositedEventEntity event = MoneyDepositedEventEntity.of(
                 request.getAccountId(),
                 LocalDateTime.now(),
                 request.getAmount(),
@@ -132,13 +141,18 @@ public class AccountCommandService implements AccountCommandUseCase {
     @Override
     public void withdrawMoney(WithdrawRequest request) {
         validateAmount(request.getAmount());
-        Account account = loadAccount(request.getAccountId());
+        AccountEntity account = accountRepository.findById(request.getAccountId())
+                .orElseThrow(() -> new IllegalArgumentException("계좌를 찾을 수 없습니다."));
         account.checkAvailableWithdraw(request.getAmount());
+
+        // DB 잔액 업데이트
+        account.changeBalance(account.getBalance() - request.getAmount());
+        accountRepository.save(account);
 
         // 출금 이벤트 객체 생성
         String correlationId = UUID.randomUUID().toString();
         EventMetadata eventMetadata = EventMetadata.of(correlationId, null, request.getUserId());
-        MoneyWithdrawnEvent event = MoneyWithdrawnEvent.of(
+        MoneyWithdrawnEventEntity event = MoneyWithdrawnEventEntity.of(
                 request.getAccountId(),
                 LocalDateTime.now(),
                 request.getAmount(),
@@ -177,7 +191,7 @@ public class AccountCommandService implements AccountCommandUseCase {
 
         // 출금 이벤트 생성
         EventMetadata withdrawMetadata = EventMetadata.of(correlationId, null, request.getUserId());
-        MoneyWithdrawnEvent withdrawEvent = MoneyWithdrawnEvent.of(
+        MoneyWithdrawnEventEntity withdrawEvent = MoneyWithdrawnEventEntity.of(
                 request.getFromAccountId(),
                 LocalDateTime.now(),
                 request.getAmount(),
@@ -186,7 +200,7 @@ public class AccountCommandService implements AccountCommandUseCase {
 
         // 입금 이벤트 생성 (출금 이벤트를 원인으로 지정)
         EventMetadata depositMetadata = EventMetadata.of(correlationId, String.valueOf(withdrawEvent.getId()), request.getUserId());
-        MoneyDepositedEvent depositEvent = MoneyDepositedEvent.of(
+        MoneyDepositedEventEntity depositEvent = MoneyDepositedEventEntity.of(
                 request.getToAccountId(),
                 LocalDateTime.now(),
                 request.getAmount(),
@@ -228,7 +242,7 @@ public class AccountCommandService implements AccountCommandUseCase {
      */
     private double calculateCurrentBalance(String accountId) {
         // 최근 스냅샷 조회
-        AccountSnapshot snapshot = snapshotRepository.findById(accountId)
+        AccountSnapshotEntity snapshot = snapshotRepository.findById(accountId)
                 .orElse(null);
 
         LocalDateTime fromDate;
@@ -244,11 +258,11 @@ public class AccountCommandService implements AccountCommandUseCase {
         }
 
         // 스냅샷 이후의 모든 이벤트를 적용하여 잔액 계산
-        List<AbstractAccountEvent> events = accountEventStoreUseCase.getEvents(accountId, fromDate);
-        for (AbstractAccountEvent event : events) {
-            if (event instanceof MoneyDepositedEvent) {
+        List<AbstractAccountEventEntity> events = accountEventStoreUseCase.getEvents(accountId, fromDate);
+        for (AbstractAccountEventEntity event : events) {
+            if (event instanceof MoneyDepositedEventEntity) {
                 balance += event.getAmount();
-            } else if (event instanceof MoneyWithdrawnEvent) {
+            } else if (event instanceof MoneyWithdrawnEventEntity) {
                 balance -= event.getAmount();
             }
         }
@@ -275,7 +289,7 @@ public class AccountCommandService implements AccountCommandUseCase {
      * @param accountId 계좌 ID
      */
     private void checkAndSaveSnapshot(String accountId) {
-        AccountSnapshot lastSnapshot = snapshotRepository.findById(accountId).orElse(null);
+        AccountSnapshotEntity lastSnapshot = snapshotRepository.findById(accountId).orElse(null);
         LocalDateTime fromDate = lastSnapshot != null ?
                 lastSnapshot.getSnapshotDate() :
                 LocalDateTime.of(1970, 1, 1, 0, 0);
@@ -296,7 +310,7 @@ public class AccountCommandService implements AccountCommandUseCase {
      */
     private void saveSnapshot(String accountId) {
         double currentBalance = calculateCurrentBalance(accountId);
-        AccountSnapshot snapshot = AccountSnapshot.of(
+        AccountSnapshotEntity snapshot = AccountSnapshotEntity.of(
                 accountId,
                 currentBalance,
                 LocalDateTime.now()
