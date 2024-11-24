@@ -1,6 +1,6 @@
 package com.example.cqrs.query.controller;
 
-import com.example.cqrs.query.document.AccountView;
+import com.example.cqrs.query.document.AccountDocument;
 import com.example.cqrs.query.usecase.AccountViewQueryUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +17,7 @@ public class AccountQueryController {
     private final AccountViewQueryUseCase accountViewQueryUseCase;
 
     @GetMapping("/{accountId}")
-    public ResponseEntity<AccountView> getAccount(
+    public ResponseEntity<AccountDocument> getAccount(
             @PathVariable String accountId
     ) {
         return accountViewQueryUseCase.getAccount(accountId)

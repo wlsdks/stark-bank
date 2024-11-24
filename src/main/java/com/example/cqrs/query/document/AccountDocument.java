@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Document(collection = "account_view")
-public class AccountView {
+public class AccountDocument {
 
     @Id
     private String accountId; // 계좌 ID
@@ -24,8 +24,8 @@ public class AccountView {
     private LocalDateTime lastUpdated; // 마지막 업데이트 시간
 
     // factory method
-    public static AccountView of(String accountId, double balance, LocalDateTime lastUpdated) {
-        return new AccountView(accountId, balance, lastUpdated);
+    public static AccountDocument of(String accountId, double balance, LocalDateTime lastUpdated) {
+        return new AccountDocument(accountId, balance, lastUpdated);
     }
 
     // 잔액 변경 메서드

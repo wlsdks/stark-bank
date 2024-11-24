@@ -4,7 +4,7 @@ import com.example.cqrs.command.entity.event.*;
 import com.example.cqrs.command.entity.event.AbstractAccountEventEntity;
 import com.example.cqrs.command.entity.event.AccountCreatedEventEntity;
 import com.example.cqrs.common.exception.EventHandlingException;
-import com.example.cqrs.query.document.AccountView;
+import com.example.cqrs.query.document.AccountDocument;
 import com.example.cqrs.query.repository.AccountViewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
  * MongoDB 읽기 모델을 업데이트하는 이벤트 핸들러입니다.
- * 계좌 관련 이벤트를 처리하여 MongoDB에 저장된 읽기 모델(AccountView)을 업데이트합니다.
+ * 계좌 관련 이벤트를 처리하여 MongoDB에 저장된 읽기 모델(AccountDocument)을 업데이트합니다.
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -37,12 +37,12 @@ public class AccountEventListener {
         log.info("계좌 생성 이벤트 처리 시작: {}", event.getAccountId());
         try {
             retryTemplate.execute(context -> {
-                AccountView accountView = AccountView.of(
+                AccountDocument accountDocument = AccountDocument.of(
                         event.getAccountId(),
                         event.getAmount(),
                         event.getEventDate()
                 );
-                accountViewRepository.save(accountView);
+                accountViewRepository.save(accountDocument);
                 log.info("계좌 생성 이벤트 처리 완료: {}", event.getAccountId());
                 return null;
             });
@@ -104,15 +104,15 @@ public class AccountEventListener {
      * @throws IllegalArgumentException 계좌를 찾을 수 없는 경우
      */
     private void updateBalance(AbstractAccountEventEntity event, boolean isDeposit) {
-        AccountView accountView = accountViewRepository.findById(event.getAccountId())
+        AccountDocument accountDocument = accountViewRepository.findById(event.getAccountId())
                 .orElseThrow(() -> new IllegalArgumentException("MongoDB에서 계좌를 찾을 수 없습니다."));
 
         double newBalance = isDeposit
-                ? accountView.getBalance() + event.getAmount()
-                : accountView.getBalance() - event.getAmount();
+                ? accountDocument.getBalance() + event.getAmount()
+                : accountDocument.getBalance() - event.getAmount();
 
-        accountView.changeBalance(newBalance);
-        accountView.changeLastUpdated(event.getEventDate());
-        accountViewRepository.save(accountView);
+        accountDocument.changeBalance(newBalance);
+        accountDocument.changeLastUpdated(event.getEventDate());
+        accountViewRepository.save(accountDocument);
     }
 }
