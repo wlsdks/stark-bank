@@ -1,7 +1,7 @@
 package com.example.cqrs.query.controller;
 
 import com.example.cqrs.query.document.AccountDocument;
-import com.example.cqrs.query.usecase.AccountViewQueryUseCase;
+import com.example.cqrs.query.usecase.AccountQueryUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class AccountQueryController {
 
-    private final AccountViewQueryUseCase accountViewQueryUseCase;
+    private final AccountQueryUseCase accountQueryUseCase;
 
     @GetMapping("/{accountId}")
     public ResponseEntity<AccountDocument> getAccount(
             @PathVariable String accountId
     ) {
-        return accountViewQueryUseCase.getAccount(accountId)
+        return accountQueryUseCase.getAccount(accountId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

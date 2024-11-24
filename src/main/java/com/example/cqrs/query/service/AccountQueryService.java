@@ -1,8 +1,8 @@
 package com.example.cqrs.query.service;
 
 import com.example.cqrs.query.document.AccountDocument;
-import com.example.cqrs.query.repository.AccountViewRepository;
-import com.example.cqrs.query.usecase.AccountViewQueryUseCase;
+import com.example.cqrs.query.repository.AccountQueryRepository;
+import com.example.cqrs.query.usecase.AccountQueryUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -10,12 +10,12 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
-public class AccountViewQueryService implements AccountViewQueryUseCase {
+public class AccountQueryService implements AccountQueryUseCase {
 
-    private final AccountViewRepository accountViewRepository;
+    private final AccountQueryRepository accountQueryRepository;
 
     public Optional<AccountDocument> getAccount(String accountId) {
-        return accountViewRepository.findById(accountId);
+        return accountQueryRepository.findById(accountId);
     }
 
 }

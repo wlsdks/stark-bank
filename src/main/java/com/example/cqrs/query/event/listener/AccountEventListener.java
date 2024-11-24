@@ -5,7 +5,7 @@ import com.example.cqrs.command.entity.event.AbstractAccountEventEntity;
 import com.example.cqrs.command.entity.event.AccountCreatedEventEntity;
 import com.example.cqrs.common.exception.EventHandlingException;
 import com.example.cqrs.query.document.AccountDocument;
-import com.example.cqrs.query.repository.AccountViewRepository;
+import com.example.cqrs.query.repository.AccountQueryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.support.RetryTemplate;
@@ -22,7 +22,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Service
 public class AccountEventListener {
 
-    private final AccountViewRepository accountViewRepository;
+    private final AccountQueryRepository accountQueryRepository;
     private final RetryTemplate retryTemplate;
 
     /**
@@ -42,7 +42,7 @@ public class AccountEventListener {
                         event.getAmount(),
                         event.getEventDate()
                 );
-                accountViewRepository.save(accountDocument);
+                accountQueryRepository.save(accountDocument);
                 log.info("계좌 생성 이벤트 처리 완료: {}", event.getAccountId());
                 return null;
             });
@@ -104,7 +104,7 @@ public class AccountEventListener {
      * @throws IllegalArgumentException 계좌를 찾을 수 없는 경우
      */
     private void updateBalance(AbstractAccountEventEntity event, boolean isDeposit) {
-        AccountDocument accountDocument = accountViewRepository.findById(event.getAccountId())
+        AccountDocument accountDocument = accountQueryRepository.findByAccountId(event.getAccountId())
                 .orElseThrow(() -> new IllegalArgumentException("MongoDB에서 계좌를 찾을 수 없습니다."));
 
         double newBalance = isDeposit
@@ -113,6 +113,6 @@ public class AccountEventListener {
 
         accountDocument.changeBalance(newBalance);
         accountDocument.changeLastUpdated(event.getEventDate());
-        accountViewRepository.save(accountDocument);
+        accountQueryRepository.save(accountDocument);
     }
 }
