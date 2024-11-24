@@ -1,14 +1,14 @@
-package com.example.cqrs.query.usecase;
+package com.example.cqrs.command.usecase;
 
-import com.example.cqrs.query.entity.AccountView;
+import com.example.cqrs.command.entity.AccountWrite;
 import com.example.cqrs.command.entity.event.AbstractAccountEvent;
 
 import java.util.List;
 
-public interface AccountQueryUseCase {
+public interface AccountWriteQueryUseCase {
 
     // 계좌 조회
-    AccountView getAccount(String accountId);
+    AccountWrite getAccount(String accountId);
 
     // 계좌 이력 조회
     List<AbstractAccountEvent> getAccountHistory(String accountId);

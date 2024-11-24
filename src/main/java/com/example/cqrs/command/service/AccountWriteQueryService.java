@@ -1,10 +1,10 @@
-package com.example.cqrs.query.service;
+package com.example.cqrs.command.service;
 
-import com.example.cqrs.query.entity.AccountView;
+import com.example.cqrs.command.entity.AccountWrite;
 import com.example.cqrs.command.entity.event.AbstractAccountEvent;
-import com.example.cqrs.query.repository.AccountViewRepository;
+import com.example.cqrs.command.repository.AccountWriteRepository;
 import com.example.cqrs.command.usecase.AccountEventStoreUseCase;
-import com.example.cqrs.query.usecase.AccountQueryUseCase;
+import com.example.cqrs.command.usecase.AccountWriteQueryUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,9 +22,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 @Service
-public class AccountQueryService implements AccountQueryUseCase {
+public class AccountWriteQueryService implements AccountWriteQueryUseCase {
 
-    private final AccountViewRepository accountViewRepository;  // 읽기 모델 저장소
+    private final AccountWriteRepository accountWriteRepository;  // 읽기 모델 저장소
     private final AccountEventStoreUseCase accountEventStoreUseCase;          // 이벤트 저장소
 
     /**
@@ -35,8 +35,8 @@ public class AccountQueryService implements AccountQueryUseCase {
      * @throws IllegalArgumentException 계좌를 찾을 수 없는 경우
      */
     @Override
-    public AccountView getAccount(String accountId) {
-        return accountViewRepository.findById(accountId)
+    public AccountWrite getAccount(String accountId) {
+        return accountWriteRepository.findById(accountId)
                 .orElseThrow(() -> new IllegalArgumentException("계좌를 찾을 수 없습니다."));
     }
 
@@ -88,9 +88,9 @@ public class AccountQueryService implements AccountQueryUseCase {
     public List<String> getActiveAccountIds() {
         log.debug("Fetching all active account IDs");
 
-        List<String> accountIds = accountViewRepository.findAll()
+        List<String> accountIds = accountWriteRepository.findAll()
                 .stream()
-                .map(AccountView::getAccountId)
+                .map(AccountWrite::getAccountId)
                 .collect(Collectors.toList());
 
         log.debug("Found {} active accounts", accountIds.size());
