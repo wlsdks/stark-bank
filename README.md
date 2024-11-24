@@ -1,7 +1,15 @@
 ### 준비물
 - Java 23
 - PostgreSQL
+- MongoDB
 - IDE (IntelliJ IDEA, Eclipse, VSCode, etc...)
+
+### 몽고DB 설정
+- docker-compose.yml 파일을 실행하여 몽고DB를 설정합니다.
+- 몽고DB는 읽기 Query 전용 DB로 사용합니다.
+- 몽고DB 실행 후 웹 콘솔 접속하기: http://localhost:8101/
+  - 계정: admin
+  - 비밀번호: admin123
 
 ### 프로젝트 설명
 - 제가 공부하고 싶어서 만든 CQRS 예시 프로젝트입니다.
