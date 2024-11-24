@@ -1,39 +1,31 @@
 package com.example.cqrs.query.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.time.LocalDateTime;
 
 /**
- * 읽기 전용 계좌 모델입니다.
- * CQRS의 읽기 모델 측면에서 올바르게 구현된 것입니다.
+ * MongoDB에 저장되는 계좌 읽기 모델
  */
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@Entity
-@Table(name = "account_read")
+@Document(collection = "account_view")
 public class AccountView {
 
     @Id
     private String accountId; // 계좌 ID
-
-    @Column(name = "balance")
     private double balance;   // 잔액
+    private LocalDateTime lastUpdated; // 마지막 업데이트 시간
 
     // factory method
-    public static AccountView of(String accountId, Double amount) {
-        return new AccountView(accountId, amount);
-    }
-
-    // 잔액 변경 메서드
-    public void changeBalance(double balance) {
-        this.balance = balance;
+    public static AccountView of(String accountId, double balance, LocalDateTime lastUpdated) {
+        return new AccountView(accountId, balance, lastUpdated);
     }
 
 }
