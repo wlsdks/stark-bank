@@ -10,6 +10,8 @@
 - 몽고DB 실행 후 웹 콘솔 접속하기: http://localhost:8101/
   - 계정: admin
   - 비밀번호: admin123
+  - http 요청이 실행되면 document가 자동으로 생성됩니다.
+  - 코드로 설정하여 accountId를 document의 _id(기본키)로 사용합니다.
 
 ### 프로젝트 설명
 - 제가 공부하고 싶어서 만든 CQRS 예시 프로젝트입니다.
