@@ -28,4 +28,15 @@ public class AccountView {
         return new AccountView(accountId, balance, lastUpdated);
     }
 
+    // 잔액 변경 메서드
+    public void changeBalance(double newBalance) {
+        this.balance = newBalance;
+        this.lastUpdated = LocalDateTime.now();
+    }
+
+    // 마지막 업데이트 시간 변경 메서드
+    public void changeLastUpdated(LocalDateTime eventDate) {
+        this.lastUpdated = eventDate;
+    }
+
 }
