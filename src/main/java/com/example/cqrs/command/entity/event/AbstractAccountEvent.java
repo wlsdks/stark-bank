@@ -22,13 +22,13 @@ public abstract class AbstractAccountEvent {
     private Long id;
 
     @Column(nullable = false)
-    private String accountId;
+    private String accountId; // 계좌 ID
 
     @Column(nullable = false)
-    private LocalDateTime eventDate;
+    private LocalDateTime eventDate; // 이벤트 발생 일시
 
     @Column(nullable = true)
-    private Double amount;
+    private Double amount; // 이벤트 발생 금액
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
