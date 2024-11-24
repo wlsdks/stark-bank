@@ -1,10 +1,11 @@
 package com.example.cqrs.query.document;
 
-import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
@@ -19,8 +20,11 @@ import java.time.LocalDateTime;
 public class AccountDocument {
 
     @Id
+    @Indexed(unique = true)  // accountId 필드에 유니크 인덱스 추가
     private String accountId; // 계좌 ID
+
     private double balance;   // 잔액
+
     private LocalDateTime lastUpdated; // 마지막 업데이트 시간
 
     // factory method
