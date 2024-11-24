@@ -4,7 +4,7 @@ import com.example.cqrs.command.entity.event.AbstractAccountEvent;
 import com.example.cqrs.command.entity.event.enumerate.EventStatus;
 import com.example.cqrs.command.usecase.AccountEventStoreUseCase;
 import com.example.cqrs.common.service.EventReplayService;
-import com.example.cqrs.query.usecase.AccountQueryUseCase;
+import com.example.cqrs.command.usecase.AccountWriteQueryUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,7 +19,7 @@ import java.util.List;
 public class EventReplayScheduler {
 
     private final EventReplayService eventReplayService;
-    private final AccountQueryUseCase accountQueryUseCase;
+    private final AccountWriteQueryUseCase accountWriteQueryUseCase;
     private final AccountEventStoreUseCase eventStoreUseCase;
 
     /**
@@ -31,7 +31,7 @@ public class EventReplayScheduler {
         LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
 
         try {
-            List<String> activeAccounts = accountQueryUseCase.getActiveAccountIds();
+            List<String> activeAccounts = accountWriteQueryUseCase.getActiveAccountIds();
             log.info("Found {} active accounts to sync", activeAccounts.size());
 
             for (String accountId : activeAccounts) {
