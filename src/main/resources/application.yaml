@@ -42,8 +42,8 @@ spring:
   # MongoDB 설정
   data:
     mongodb:
-      database: account_read_db
-      uri: mongodb://localhost:27017
+      uri: mongodb://admin:admin123@localhost:27017
+      database: cqrs  # 원하는 데이터베이스 이름
 
 # 로깅 설정
 logging:
