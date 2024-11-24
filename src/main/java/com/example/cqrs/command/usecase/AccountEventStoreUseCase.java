@@ -1,6 +1,6 @@
 package com.example.cqrs.command.usecase;
 
-import com.example.cqrs.command.entity.event.AbstractAccountEvent;
+import com.example.cqrs.command.entity.event.AbstractAccountEventEntity;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,17 +11,17 @@ import java.util.List;
  */
 public interface AccountEventStoreUseCase {
 
-    void save(AbstractAccountEvent event);
+    void save(AbstractAccountEventEntity event);
 
-    void saveEventStatus(AbstractAccountEvent event);
+    void saveEventStatus(AbstractAccountEventEntity event);
 
-    List<AbstractAccountEvent> getEvents(String accountId, LocalDateTime after);
+    List<AbstractAccountEventEntity> getEvents(String accountId, LocalDateTime after);
 
-    List<AbstractAccountEvent> getAllEvents(String accountId);
+    List<AbstractAccountEventEntity> getAllEvents(String accountId);
 
-    List<AbstractAccountEvent> findByMetadataCorrelationId(String correlationId);
+    List<AbstractAccountEventEntity> findByMetadataCorrelationId(String correlationId);
 
-    List<AbstractAccountEvent> findByMetadataUserId(String userId);
+    List<AbstractAccountEventEntity> findByMetadataUserId(String userId);
 
     long countEventsAfterDate(String accountId, LocalDateTime afterDate);
 

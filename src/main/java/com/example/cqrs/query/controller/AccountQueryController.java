@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/accounts")
 @RequiredArgsConstructor
 @RestController
-public class AccountViewQueryController {
+public class AccountQueryController {
 
     private final AccountViewQueryUseCase accountViewQueryUseCase;
 

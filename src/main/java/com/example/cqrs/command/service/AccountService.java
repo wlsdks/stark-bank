@@ -1,10 +1,10 @@
 package com.example.cqrs.command.service;
 
-import com.example.cqrs.command.entity.AccountWrite;
-import com.example.cqrs.command.entity.event.AbstractAccountEvent;
-import com.example.cqrs.command.repository.AccountWriteRepository;
+import com.example.cqrs.command.entity.AccountEntity;
+import com.example.cqrs.command.entity.event.AbstractAccountEventEntity;
+import com.example.cqrs.command.repository.AccountRepository;
 import com.example.cqrs.command.usecase.AccountEventStoreUseCase;
-import com.example.cqrs.command.usecase.AccountWriteQueryUseCase;
+import com.example.cqrs.command.usecase.AccountUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,10 +22,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 @Service
-public class AccountWriteQueryService implements AccountWriteQueryUseCase {
+public class AccountService implements AccountUseCase {
 
-    private final AccountWriteRepository accountWriteRepository;  // 읽기 모델 저장소
-    private final AccountEventStoreUseCase accountEventStoreUseCase;          // 이벤트 저장소
+    private final AccountRepository accountRepository;
+    private final AccountEventStoreUseCase accountEventStoreUseCase;
 
     /**
      * 특정 계좌의 정보를 조회합니다.
@@ -35,8 +35,8 @@ public class AccountWriteQueryService implements AccountWriteQueryUseCase {
      * @throws IllegalArgumentException 계좌를 찾을 수 없는 경우
      */
     @Override
-    public AccountWrite getAccount(String accountId) {
-        return accountWriteRepository.findById(accountId)
+    public AccountEntity getAccount(String accountId) {
+        return accountRepository.findById(accountId)
                 .orElseThrow(() -> new IllegalArgumentException("계좌를 찾을 수 없습니다."));
     }
 
@@ -48,7 +48,7 @@ public class AccountWriteQueryService implements AccountWriteQueryUseCase {
      * @return 계좌 관련 이벤트 목록
      */
     @Override
-    public List<AbstractAccountEvent> getAccountHistory(String accountId) {
+    public List<AbstractAccountEventEntity> getAccountHistory(String accountId) {
         return accountEventStoreUseCase.getAllEvents(accountId);
     }
 
@@ -60,7 +60,7 @@ public class AccountWriteQueryService implements AccountWriteQueryUseCase {
      * @return 사용자 관련 이벤트 목록
      */
     @Override
-    public List<AbstractAccountEvent> getUserTransactions(String userId) {
+    public List<AbstractAccountEventEntity> getUserTransactions(String userId) {
         return accountEventStoreUseCase.findByMetadataUserId(userId);
     }
 
@@ -73,7 +73,7 @@ public class AccountWriteQueryService implements AccountWriteQueryUseCase {
      * @return 연관된 이벤트 목록
      */
     @Override
-    public List<AbstractAccountEvent> getRelatedTransactions(String correlationId) {
+    public List<AbstractAccountEventEntity> getRelatedTransactions(String correlationId) {
         return accountEventStoreUseCase.findByMetadataCorrelationId(correlationId);
     }
 
@@ -88,9 +88,9 @@ public class AccountWriteQueryService implements AccountWriteQueryUseCase {
     public List<String> getActiveAccountIds() {
         log.debug("Fetching all active account IDs");
 
-        List<String> accountIds = accountWriteRepository.findAll()
+        List<String> accountIds = accountRepository.findAll()
                 .stream()
-                .map(AccountWrite::getAccountId)
+                .map(AccountEntity::getAccountId)
                 .collect(Collectors.toList());
 
         log.debug("Found {} active accounts", accountIds.size());

@@ -16,7 +16,7 @@ import java.util.List;
 
 /**
  * 이벤트 재생을 담당하는 서비스 구현체입니다.
- * 읽기 모델(AccountWrite)을 재구성하거나 특정 시점부터 이벤트를 다시 적용할 때 사용됩니다.
+ * 읽기 모델(AccountEntity)을 재구성하거나 특정 시점부터 이벤트를 다시 적용할 때 사용됩니다.
  *
  * <p>주요 사용 사례:</p>
  * <ul>
@@ -47,10 +47,10 @@ public class EventReplayServiceImpl implements EventReplayService {
     public void replayEvents(String accountId, LocalDateTime fromDate) {
         log.info("Starting event replay for account {} from {}", accountId, fromDate);
 
-        List<AbstractAccountEvent> events = accountEventStoreUseCase.getEvents(accountId, fromDate);
+        List<AbstractAccountEventEntity> events = accountEventStoreUseCase.getEvents(accountId, fromDate);
         log.debug("Found {} events to replay", events.size());
 
-        for (AbstractAccountEvent event : events) {
+        for (AbstractAccountEventEntity event : events) {
             if (event.getStatus() != EventStatus.PROCESSED) {
                 try {
                     replayEvent(event);
@@ -70,18 +70,18 @@ public class EventReplayServiceImpl implements EventReplayService {
      *
      * @param event 처리할 이벤트
      */
-    private void replayEvent(AbstractAccountEvent event) {
+    private void replayEvent(AbstractAccountEventEntity event) {
         log.debug("Replaying event: {}", event.getId());
 
         switch (event.getClass().getSimpleName()) {
-            case "AccountCreatedEvent":
-                accountEventListener.handleAccountCreate((AccountCreatedEvent) event);
+            case "AccountCreatedEventEntity":
+                accountEventListener.handleAccountCreate((AccountCreatedEventEntity) event);
                 break;
-            case "MoneyDepositedEvent":
-                accountEventListener.handleDeposit((MoneyDepositedEvent) event);
+            case "MoneyDepositedEventEntity":
+                accountEventListener.handleDeposit((MoneyDepositedEventEntity) event);
                 break;
-            case "MoneyWithdrawnEvent":
-                accountEventListener.handleWithdraw((MoneyWithdrawnEvent) event);
+            case "MoneyWithdrawnEventEntity":
+                accountEventListener.handleWithdraw((MoneyWithdrawnEventEntity) event);
                 break;
             default:
                 log.warn("Unknown event type: {}", event.getClass().getSimpleName());

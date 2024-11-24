@@ -11,16 +11,16 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DiscriminatorValue("AccountCreatedEvent")
 @Entity
-public class AccountCreatedEvent extends AbstractAccountEvent {
+public class AccountCreatedEventEntity extends AbstractAccountEventEntity {
 
-    public AccountCreatedEvent(String accountId, LocalDateTime eventDate,
-                             double amount, EventMetadata metadata) {
+    public AccountCreatedEventEntity(String accountId, LocalDateTime eventDate,
+                                     double amount, EventMetadata metadata) {
         super(accountId, eventDate, amount, metadata);
     }
 
     // factory method
-    public static AccountCreatedEvent of(String accountId, LocalDateTime eventDate, double amount, EventMetadata metadata) {
-        return new AccountCreatedEvent(accountId, eventDate, amount, metadata);
+    public static AccountCreatedEventEntity of(String accountId, LocalDateTime eventDate, double amount, EventMetadata metadata) {
+        return new AccountCreatedEventEntity(accountId, eventDate, amount, metadata);
     }
 
 }

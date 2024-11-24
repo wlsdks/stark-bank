@@ -1,9 +1,8 @@
 package com.example.cqrs.query.event.listener;
 
-import com.example.cqrs.command.entity.event.AbstractAccountEvent;
-import com.example.cqrs.command.entity.event.AccountCreatedEvent;
-import com.example.cqrs.command.entity.event.MoneyDepositedEvent;
-import com.example.cqrs.command.entity.event.MoneyWithdrawnEvent;
+import com.example.cqrs.command.entity.event.*;
+import com.example.cqrs.command.entity.event.AbstractAccountEventEntity;
+import com.example.cqrs.command.entity.event.AccountCreatedEventEntity;
 import com.example.cqrs.common.exception.EventHandlingException;
 import com.example.cqrs.query.entity.AccountView;
 import com.example.cqrs.query.repository.AccountViewRepository;
@@ -34,7 +33,7 @@ public class AccountEventListener {
      * @throws EventHandlingException 모든 재시도 후에도 처리 실패 시
      */
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleAccountCreate(AccountCreatedEvent event) {
+    public void handleAccountCreate(AccountCreatedEventEntity event) {
         log.info("계좌 생성 이벤트 처리 시작: {}", event.getAccountId());
         try {
             retryTemplate.execute(context -> {
@@ -60,7 +59,7 @@ public class AccountEventListener {
      * @param event 입금 이벤트
      */
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleDeposit(MoneyDepositedEvent event) {
+    public void handleDeposit(MoneyDepositedEventEntity event) {
         log.info("계좌 입금 이벤트 처리 시작: {}", event.getAccountId());
         updateBalanceWithRetry(event, true);
     }
@@ -72,7 +71,7 @@ public class AccountEventListener {
      * @param event 출금 이벤트
      */
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleWithdraw(MoneyWithdrawnEvent event) {
+    public void handleWithdraw(MoneyWithdrawnEventEntity event) {
         log.info("계좌 출금 이벤트 처리 시작: {}", event.getAccountId());
         updateBalanceWithRetry(event, false);
     }
@@ -84,7 +83,7 @@ public class AccountEventListener {
      * @param isDeposit true인 경우 입금, false인 경우 출금
      * @throws EventHandlingException 모든 재시도 후에도 처리 실패 시
      */
-    private void updateBalanceWithRetry(AbstractAccountEvent event, boolean isDeposit) {
+    private void updateBalanceWithRetry(AbstractAccountEventEntity event, boolean isDeposit) {
         try {
             retryTemplate.execute(context -> {
                 updateBalance(event, isDeposit);
@@ -104,7 +103,7 @@ public class AccountEventListener {
      * @param isDeposit true인 경우 입금, false인 경우 출금
      * @throws IllegalArgumentException 계좌를 찾을 수 없는 경우
      */
-    private void updateBalance(AbstractAccountEvent event, boolean isDeposit) {
+    private void updateBalance(AbstractAccountEventEntity event, boolean isDeposit) {
         AccountView accountView = accountViewRepository.findById(event.getAccountId())
                 .orElseThrow(() -> new IllegalArgumentException("MongoDB에서 계좌를 찾을 수 없습니다."));
 

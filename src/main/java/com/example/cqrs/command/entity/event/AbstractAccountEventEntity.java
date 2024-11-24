@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 @DiscriminatorColumn(name = "event_type")
 @Getter
 @Entity
-@Table(name = "account_event")
-public abstract class AbstractAccountEvent {
+@Table(name = "account_event_store")
+public abstract class AbstractAccountEventEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,8 +40,8 @@ public abstract class AbstractAccountEvent {
     @Version
     private Long version; // JPA 낙관적 잠금용 버전
 
-    protected AbstractAccountEvent(String accountId, LocalDateTime eventDate,
-                                   Double amount, EventMetadata metadata) {
+    protected AbstractAccountEventEntity(String accountId, LocalDateTime eventDate,
+                                         Double amount, EventMetadata metadata) {
         this.accountId = accountId;
         this.eventDate = eventDate;
         this.amount = amount;

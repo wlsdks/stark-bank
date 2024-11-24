@@ -1,6 +1,6 @@
 package com.example.cqrs.command.dto.read;
 
-import com.example.cqrs.command.entity.AccountWrite;
+import com.example.cqrs.command.entity.AccountEntity;
 import lombok.*;
 
 /**
@@ -16,10 +16,10 @@ public class AccountDetailResponse {
     private double balance;
 
     // factory method
-    public static AccountDetailResponse from(AccountWrite accountWrite) {
+    public static AccountDetailResponse from(AccountEntity accountEntity) {
         return AccountDetailResponse.builder()
-                .accountId(accountWrite.getAccountId())
-                .balance(accountWrite.getBalance())
+                .accountId(accountEntity.getAccountId())
+                .balance(accountEntity.getBalance())
                 .build();
     }
 

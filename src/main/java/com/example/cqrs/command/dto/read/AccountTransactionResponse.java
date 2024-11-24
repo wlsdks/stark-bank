@@ -1,6 +1,6 @@
 package com.example.cqrs.command.dto.read;
 
-import com.example.cqrs.command.entity.event.AbstractAccountEvent;
+import com.example.cqrs.command.entity.event.AbstractAccountEventEntity;
 import com.example.cqrs.command.entity.event.enumerate.EventStatus;
 import lombok.*;
 
@@ -23,7 +23,7 @@ public class AccountTransactionResponse {
     private EventMetadataResponse metadata; // 이벤트 메타데이터
 
     // factory method
-    public static AccountTransactionResponse from(AbstractAccountEvent event) {
+    public static AccountTransactionResponse from(AbstractAccountEventEntity event) {
         return AccountTransactionResponse.builder()
                 .accountId(event.getAccountId())
                 .eventType(event.getClass().getSimpleName())

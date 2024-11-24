@@ -17,8 +17,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 @Entity
-@Table(name = "account_read")
-public class AccountWrite {
+@Table(name = "account")
+public class AccountEntity {
 
     @Id
     private String accountId; // 계좌 ID
@@ -27,8 +27,8 @@ public class AccountWrite {
     private double balance;   // 잔액
 
     // factory method
-    public static AccountWrite of(String accountId, Double amount) {
-        return new AccountWrite(accountId, amount);
+    public static AccountEntity of(String accountId, Double amount) {
+        return new AccountEntity(accountId, amount);
     }
 
     // 잔액 변경 메서드

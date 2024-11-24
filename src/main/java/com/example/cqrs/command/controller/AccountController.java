@@ -2,7 +2,7 @@ package com.example.cqrs.command.controller;
 
 import com.example.cqrs.command.dto.read.AccountDetailResponse;
 import com.example.cqrs.command.dto.read.AccountTransactionResponse;
-import com.example.cqrs.command.usecase.AccountWriteQueryUseCase;
+import com.example.cqrs.command.usecase.AccountUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,9 +17,9 @@ import java.util.stream.Collectors;
 @RequestMapping("/accounts")
 @RequiredArgsConstructor
 @RestController
-public class AccountWriteQueryController {
+public class AccountController {
 
-    private final AccountWriteQueryUseCase accountWriteQueryUseCase;
+    private final AccountUseCase accountUseCase;
 
     /**
      * 특정 계좌의 상세 정보를 조회합니다.
@@ -33,7 +33,7 @@ public class AccountWriteQueryController {
             @PathVariable String accountId,
             @RequestHeader("X-User-Id") String userId
     ) {
-        AccountDetailResponse response = AccountDetailResponse.from(accountWriteQueryUseCase.getAccount(accountId));
+        AccountDetailResponse response = AccountDetailResponse.from(accountUseCase.getAccount(accountId));
         return ResponseEntity.ok(response);
     }
 
@@ -49,7 +49,7 @@ public class AccountWriteQueryController {
             @PathVariable String accountId,
             @RequestHeader("X-User-Id") String userId
     ) {
-        List<AccountTransactionResponse> response = accountWriteQueryUseCase.getAccountHistory(accountId).stream()
+        List<AccountTransactionResponse> response = accountUseCase.getAccountHistory(accountId).stream()
                 .map(AccountTransactionResponse::from)
                 .collect(Collectors.toList());
 
@@ -66,7 +66,7 @@ public class AccountWriteQueryController {
     public ResponseEntity<List<AccountTransactionResponse>> getUserTransactions(
             @PathVariable String userId
     ) {
-        List<AccountTransactionResponse> response = accountWriteQueryUseCase.getUserTransactions(userId).stream()
+        List<AccountTransactionResponse> response = accountUseCase.getUserTransactions(userId).stream()
                 .map(AccountTransactionResponse::from)
                 .collect(Collectors.toList());
 
@@ -85,7 +85,7 @@ public class AccountWriteQueryController {
             @PathVariable String correlationId,
             @RequestHeader("X-User-Id") String userId
     ) {
-        List<AccountTransactionResponse> response = accountWriteQueryUseCase.getRelatedTransactions(correlationId).stream()
+        List<AccountTransactionResponse> response = accountUseCase.getRelatedTransactions(correlationId).stream()
                 .map(AccountTransactionResponse::from)
                 .collect(Collectors.toList());
 
