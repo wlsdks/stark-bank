@@ -1,4 +1,4 @@
-package com.example.cqrs.query.entity;
+package com.example.cqrs.query.document;
 
 import jakarta.persistence.Id;
 import lombok.AccessLevel;

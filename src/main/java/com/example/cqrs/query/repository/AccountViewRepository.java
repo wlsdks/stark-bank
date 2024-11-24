@@ -1,6 +1,6 @@
 package com.example.cqrs.query.repository;
 
-import com.example.cqrs.query.entity.AccountView;
+import com.example.cqrs.query.document.AccountView;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 /**

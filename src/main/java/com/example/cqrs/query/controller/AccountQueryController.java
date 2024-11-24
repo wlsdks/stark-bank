@@ -1,6 +1,6 @@
 package com.example.cqrs.query.controller;
 
-import com.example.cqrs.query.entity.AccountView;
+import com.example.cqrs.query.document.AccountView;
 import com.example.cqrs.query.usecase.AccountViewQueryUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

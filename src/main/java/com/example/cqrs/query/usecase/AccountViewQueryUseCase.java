@@ -1,6 +1,6 @@
 package com.example.cqrs.query.usecase;
 
-import com.example.cqrs.query.entity.AccountView;
+import com.example.cqrs.query.document.AccountView;
 
 import java.util.Optional;
 

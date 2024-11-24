@@ -4,7 +4,7 @@ import com.example.cqrs.command.entity.event.*;
 import com.example.cqrs.command.entity.event.AbstractAccountEventEntity;
 import com.example.cqrs.command.entity.event.AccountCreatedEventEntity;
 import com.example.cqrs.common.exception.EventHandlingException;
-import com.example.cqrs.query.entity.AccountView;
+import com.example.cqrs.query.document.AccountView;
 import com.example.cqrs.query.repository.AccountViewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
