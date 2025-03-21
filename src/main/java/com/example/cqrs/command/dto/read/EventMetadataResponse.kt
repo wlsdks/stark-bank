@@ -1,6 +1,7 @@
 package com.example.cqrs.command.dto.read
 
 import com.example.cqrs.command.entity.event.enumerate.EventSchemaVersion
+import com.example.cqrs.command.entity.event.metadata.EventMetadata
 
 data class EventMetadataResponse(
     val correlationId: String? = null,
@@ -9,13 +10,13 @@ data class EventMetadataResponse(
     val schemaVersion: EventSchemaVersion
 ) {
     companion object {
-        fun from(
-            correlationId: String?,
-            causationId: String?,
-            userId: String?,
-            schemaVersion: EventSchemaVersion
-        ): EventMetadataResponse {
-            return EventMetadataResponse(correlationId, causationId, userId, schemaVersion)
+        fun from(eventMetadata: EventMetadata): EventMetadataResponse {
+            return EventMetadataResponse(
+                correlationId = eventMetadata.correlationId,
+                causationId = eventMetadata.causationId,
+                userId = eventMetadata.userId,
+                schemaVersion = eventMetadata.schemaVersion
+            )
         }
     }
 }

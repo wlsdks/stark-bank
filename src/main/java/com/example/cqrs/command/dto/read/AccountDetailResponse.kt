@@ -5,7 +5,10 @@ data class AccountDetailResponse(
     val balance: Double
 ) {
     companion object {
-        fun from(accountId: String, balance: Double): AccountDetailResponse {
+        fun from(
+            accountId: String,
+            balance: Double
+        ): AccountDetailResponse {
             return AccountDetailResponse(accountId, balance)
         }
     }

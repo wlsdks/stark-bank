@@ -1,5 +1,6 @@
 package com.example.cqrs.command.dto.read
 
+import com.example.cqrs.command.entity.event.AbstractAccountEventEntity
 import com.example.cqrs.command.entity.event.enumerate.EventStatus
 import java.time.LocalDateTime
 
@@ -12,15 +13,15 @@ data class AccountTransactionResponse(
     val metadata: EventMetadataResponse
 ) {
     companion object {
-        fun from(
-            accountId: String,
-            eventType: String,
-            amount: Double,
-            eventDate: LocalDateTime,
-            status: EventStatus,
-            metadata: EventMetadataResponse
-        ): AccountTransactionResponse {
-            return AccountTransactionResponse(accountId, eventType, amount, eventDate, status, metadata)
+        fun from(event: AbstractAccountEventEntity): AccountTransactionResponse {
+            return AccountTransactionResponse(
+                accountId = event.accountId,
+                eventType = event.javaClass.simpleName,
+                amount = event.amount ?: 0.0,
+                eventDate = event.eventDate,
+                status = event.status,
+                metadata = EventMetadataResponse.from(event.metadata)
+            )
         }
     }
 }
