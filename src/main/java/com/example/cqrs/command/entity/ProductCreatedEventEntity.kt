@@ -8,26 +8,26 @@ import java.time.LocalDateTime
 @Entity
 @DiscriminatorValue("ProductCreatedEvent")
 class ProductCreatedEventEntity(
-    @Column(nullable = false)
+    @Column(name = "productId", nullable = false)
     val productId: String,
 
-    @Column(nullable = false)
+    @Column(name = "name", nullable = false)
     val name: String,
 
-    @Column(nullable = false)
+    @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)
     val type: ProductType,
 
-    @Column
+    @Column(name = "description")
     val description: String?,
 
-    @Column(nullable = false)
+    @Column(name = "interestRate", nullable = false)
     val interestRate: Double,
 
-    @Column(nullable = false)
+    @Column(name = "termInMonths", nullable = false)
     val termInMonths: Int,
 
-    @Column(nullable = false)
+    @Column(name = "minimumAmount", nullable = false)
     val minimumAmount: Double,
 
     eventDate: LocalDateTime,

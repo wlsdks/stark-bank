@@ -1,6 +1,5 @@
 package com.example.cqrs.command.entity.event
 
-import com.example.cqrs.command.entity.event.event.AbstractAccountEventEntity
 import com.example.cqrs.command.entity.event.metadata.EventMetadata
 import jakarta.persistence.DiscriminatorValue
 import jakarta.persistence.Entity
