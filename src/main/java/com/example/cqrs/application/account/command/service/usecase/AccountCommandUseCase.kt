@@ -1,9 +1,9 @@
 package com.example.cqrs.application.account.command.service.usecase
 
-import com.example.cqrs.application.account.command.dto.request.CreateAccountRequest
-import com.example.cqrs.application.account.command.dto.request.DepositRequest
-import com.example.cqrs.application.account.command.dto.request.TransferRequest
-import com.example.cqrs.application.account.command.dto.request.WithdrawRequest
+import com.example.cqrs.interfaces.api.command.account.dto.request.CreateAccountRequest
+import com.example.cqrs.interfaces.api.command.account.dto.request.DepositRequest
+import com.example.cqrs.interfaces.api.command.account.dto.request.TransferRequest
+import com.example.cqrs.interfaces.api.command.account.dto.request.WithdrawRequest
 
 interface AccountCommandUseCase {
     fun createAccount(request: CreateAccountRequest): String

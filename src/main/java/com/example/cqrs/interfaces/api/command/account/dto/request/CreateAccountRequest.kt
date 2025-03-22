@@ -1,4 +1,4 @@
-package com.example.cqrs.application.account.command.dto.request
+package com.example.cqrs.interfaces.api.command.account.dto.request
 
 data class CreateAccountRequest(
     val accountId: String,

@@ -1,4 +1,4 @@
-package com.example.cqrs.application.account.command.dto.response
+package com.example.cqrs.interfaces.api.command.account.dto.response
 
 data class AccountDetailResponse(
     val accountId: String,

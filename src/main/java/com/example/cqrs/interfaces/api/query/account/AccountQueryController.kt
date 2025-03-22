@@ -1,7 +1,7 @@
 package com.example.cqrs.interfaces.api.query.account
 
-import com.example.cqrs.application.account.command.dto.response.AccountDetailResponse
-import com.example.cqrs.application.account.command.dto.response.AccountTransactionResponse
+import com.example.cqrs.interfaces.api.command.account.dto.response.AccountDetailResponse
+import com.example.cqrs.interfaces.api.command.account.dto.response.AccountTransactionResponse
 import com.example.cqrs.application.account.command.service.usecase.AccountQueryUseCase
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*

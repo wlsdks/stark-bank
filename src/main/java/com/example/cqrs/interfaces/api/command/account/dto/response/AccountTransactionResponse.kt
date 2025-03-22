@@ -1,4 +1,4 @@
-package com.example.cqrs.application.account.command.dto.response
+package com.example.cqrs.interfaces.api.command.account.dto.response
 
 import com.example.cqrs.infrastructure.eventstore.entity.base.AccountEventBaseEntity
 import com.example.cqrs.infrastructure.eventstore.entity.enumerate.EventStatus
