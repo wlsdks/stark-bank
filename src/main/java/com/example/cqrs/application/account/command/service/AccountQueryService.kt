@@ -1,7 +1,7 @@
 package com.example.cqrs.application.account.command.service
 
 import com.example.cqrs.application.account.command.service.usecase.AccountEventStoreUseCase
-import com.example.cqrs.application.account.command.service.usecase.AccountUseCase
+import com.example.cqrs.application.account.command.service.usecase.AccountQueryUseCase
 import com.example.cqrs.infrastructure.eventstore.entity.base.AccountEventBaseEntity
 import com.example.cqrs.infrastructure.persistence.command.entity.AccountEntity
 import com.example.cqrs.infrastructure.persistence.command.repository.AccountRepository
@@ -10,10 +10,10 @@ import org.springframework.transaction.annotation.Transactional
 
 @Transactional
 @Service
-class AccountService(
+class AccountQueryService(
     private val accountRepository: AccountRepository,
     private val accountEventStoreUseCase: AccountEventStoreUseCase
-) : AccountUseCase {
+) : AccountQueryUseCase {
 
     /**
      * 특정 계좌의 정보를 조회합니다.
