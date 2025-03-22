@@ -2,14 +2,14 @@ package com.example.cqrs.application.product.query.service
 
 import com.example.cqrs.application.product.query.service.usecase.ProductQueryUseCase
 import com.example.cqrs.infrastructure.persistence.command.entity.ProductType
-import com.example.cqrs.infrastructure.persistence.query.repository.ProductQueryMongoRepository
+import com.example.cqrs.infrastructure.persistence.query.repository.ProductMongoRepository
 import com.example.cqrs.interfaces.api.command.product.dto.response.ProductDetailResponse
 import com.example.cqrs.interfaces.api.command.product.dto.response.ProductSummaryResponse
 import org.springframework.stereotype.Service
 
 @Service
 class ProductQueryService(
-    private val productQueryMongoRepository: ProductQueryMongoRepository
+    private val productMongoRepository: ProductMongoRepository
 ) : ProductQueryUseCase {
 
     /**
@@ -21,7 +21,7 @@ class ProductQueryService(
     override fun getProductById(
         productId: String
     ): ProductDetailResponse {
-        val product = productQueryMongoRepository.findByProductId(productId)
+        val product = productMongoRepository.findByProductId(productId)
             ?: throw IllegalArgumentException("상품을 찾을 수 없습니다: $productId")
 
         return ProductDetailResponse.from(product)
@@ -33,7 +33,7 @@ class ProductQueryService(
      * @return 상품 간단 정보 응답 목록
      */
     override fun getActiveProducts(): List<ProductSummaryResponse> {
-        return productQueryMongoRepository.findByActiveTrue()
+        return productMongoRepository.findByActiveTrue()
             .map { ProductSummaryResponse.from(it) }
     }
 
@@ -46,7 +46,7 @@ class ProductQueryService(
     override fun getProductsByType(
         type: ProductType
     ): List<ProductSummaryResponse> {
-        return productQueryMongoRepository.findByTypeAndActiveTrue(type)
+        return productMongoRepository.findByTypeAndActiveTrue(type)
             .map { ProductSummaryResponse.from(it) }
     }
 
@@ -61,7 +61,7 @@ class ProductQueryService(
         minRate: Double,
         maxRate: Double
     ): List<ProductSummaryResponse> {
-        return productQueryMongoRepository.findByInterestRateBetweenAndActiveTrue(minRate, maxRate)
+        return productMongoRepository.findByInterestRateBetweenAndActiveTrue(minRate, maxRate)
             .map { ProductSummaryResponse.from(it) }
     }
 
@@ -74,7 +74,7 @@ class ProductQueryService(
     override fun getProductsByMinimumAmount(
         maxAmount: Double
     ): List<ProductSummaryResponse> {
-        return productQueryMongoRepository.findByMinimumAmountLessThanEqualAndActiveTrue(maxAmount)
+        return productMongoRepository.findByMinimumAmountLessThanEqualAndActiveTrue(maxAmount)
             .map { ProductSummaryResponse.from(it) }
     }
 
@@ -87,7 +87,7 @@ class ProductQueryService(
     override fun searchProducts(
         keyword: String
     ): List<ProductSummaryResponse> {
-        return productQueryMongoRepository.searchProducts(keyword)
+        return productMongoRepository.searchProducts(keyword)
             .map { ProductSummaryResponse.from(it) }
     }
 
@@ -98,7 +98,7 @@ class ProductQueryService(
      * @return 추천 상품 목록
      */
     override fun getFeaturedProducts(): List<ProductSummaryResponse> {
-        return productQueryMongoRepository.findFeaturedProductsOrderByRank()
+        return productMongoRepository.findFeaturedProductsOrderByRank()
             .map { ProductSummaryResponse.from(it) }
     }
 

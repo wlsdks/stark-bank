@@ -6,6 +6,7 @@ import com.example.cqrs.common.exception.EventReplayException
 import com.example.cqrs.infrastructure.eventstore.entity.base.AccountEventBaseEntity
 import com.example.cqrs.infrastructure.eventstore.entity.enumerate.EventStatus
 import com.example.cqrs.infrastructure.eventstore.entity.event.account.AccountCreatedEventEntity
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 
@@ -14,6 +15,11 @@ class EventReplayService(
     private val accountEventStoreUseCase: AccountEventStoreUseCase,
     private val accountEventListener: AccountEventListener
 ) : EventReplayUseCase {
+
+    @Scheduled(fixedRate = 300000) // 5분마다
+    fun retryFailedEvents() {
+        // 구현
+    }
 
     override fun replayEvents(
         accountId: String,

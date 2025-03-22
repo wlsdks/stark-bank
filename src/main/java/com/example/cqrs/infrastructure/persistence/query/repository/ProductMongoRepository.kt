@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository
  * MongoDB에 저장된 금융 상품 읽기 모델에 대한 조회 작업 지원
  */
 @Repository
-interface ProductQueryMongoRepository : MongoRepository<ProductDocument, String> {
+interface ProductMongoRepository : MongoRepository<ProductDocument, String> {
 
     /**
      * 상품 ID로 상품 조회

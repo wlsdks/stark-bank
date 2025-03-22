@@ -4,7 +4,7 @@ import com.example.cqrs.infrastructure.eventstore.entity.base.EventEntity
 import com.example.cqrs.infrastructure.eventstore.entity.event.account.AccountCreatedEventEntity
 import com.example.cqrs.infrastructure.eventstore.entity.event.money.*
 import com.example.cqrs.infrastructure.persistence.query.document.AccountDocument
-import com.example.cqrs.infrastructure.persistence.query.repository.AccountQueryMongoRepository
+import com.example.cqrs.infrastructure.persistence.query.repository.AccountMongoRepository
 import org.slf4j.LoggerFactory
 import org.springframework.retry.support.RetryTemplate
 import org.springframework.stereotype.Service
@@ -17,7 +17,7 @@ import org.springframework.transaction.event.TransactionalEventListener
  */
 @Service
 class AccountEventListener(
-    private val accountQueryMongoRepository: AccountQueryMongoRepository,
+    private val accountMongoRepository: AccountMongoRepository,
     private val retryTemplate: RetryTemplate
 ) {
     private val log = LoggerFactory.getLogger(AccountEventListener::class.java)
@@ -34,7 +34,7 @@ class AccountEventListener(
                 balance = event.amount ?: 0.0,
                 lastUpdated = event.eventDate
             )
-            accountQueryMongoRepository.save(accountDocument)
+            accountMongoRepository.save(accountDocument)
             log.info("계좌 생성 완료: {}", event.accountId)
             null
         }
@@ -100,7 +100,7 @@ class AccountEventListener(
     ) {
         try {
             retryTemplate.execute<Void, Exception> { _ ->
-                val accountDocument = accountQueryMongoRepository.findByAccountId(accountId)
+                val accountDocument = accountMongoRepository.findByAccountId(accountId)
                     ?: throw IllegalStateException("계좌를 찾을 수 없음: $accountId")
 
                 val newBalance = if (isDeposit) {
@@ -111,7 +111,7 @@ class AccountEventListener(
 
                 accountDocument.changeBalance(newBalance)
                 accountDocument.lastUpdated = eventEntity.eventDate
-                accountQueryMongoRepository.save(accountDocument)
+                accountMongoRepository.save(accountDocument)
                 null
             }
         } catch (e: Exception) {

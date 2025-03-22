@@ -4,7 +4,7 @@ import com.example.cqrs.infrastructure.eventstore.entity.event.product.ProductCr
 import com.example.cqrs.infrastructure.eventstore.entity.event.product.ProductDeactivatedEventEntity
 import com.example.cqrs.infrastructure.eventstore.entity.event.product.ProductUpdatedEventEntity
 import com.example.cqrs.infrastructure.persistence.query.document.ProductDocument
-import com.example.cqrs.infrastructure.persistence.query.repository.ProductQueryMongoRepository
+import com.example.cqrs.infrastructure.persistence.query.repository.ProductMongoRepository
 import org.slf4j.LoggerFactory
 import org.springframework.retry.support.RetryTemplate
 import org.springframework.stereotype.Component
@@ -17,7 +17,7 @@ import org.springframework.transaction.event.TransactionalEventListener
  */
 @Component
 class ProductEventHandler(
-    private val productQueryMongoRepository: ProductQueryMongoRepository,
+    private val productMongoRepository: ProductMongoRepository,
     private val retryTemplate: RetryTemplate
 ) {
     private val log = LoggerFactory.getLogger(ProductEventHandler::class.java)
@@ -41,7 +41,7 @@ class ProductEventHandler(
                 createdAt = event.eventDate,
                 updatedAt = event.eventDate
             )
-            productQueryMongoRepository.save(productDocument)
+            productMongoRepository.save(productDocument)
             log.info("상품 생성 완료: {}", event.productId)
             null
         }
@@ -54,7 +54,7 @@ class ProductEventHandler(
     fun handleProductUpdated(event: ProductUpdatedEventEntity) {
         log.info("상품 수정 이벤트 처리: {}", event.productId)
         retryTemplate.execute<Void, Exception> { _ ->
-            val productDocument = productQueryMongoRepository.findByProductId(event.productId)
+            val productDocument = productMongoRepository.findByProductId(event.productId)
                 ?: throw IllegalStateException("상품을 찾을 수 없음: ${event.productId}")
 
             productDocument.name = event.name
@@ -64,7 +64,7 @@ class ProductEventHandler(
             productDocument.minimumAmount = event.minimumAmount
             productDocument.updatedAt = event.eventDate
 
-            productQueryMongoRepository.save(productDocument)
+            productMongoRepository.save(productDocument)
             log.info("상품 수정 완료: {}", event.productId)
             null
         }
@@ -77,7 +77,7 @@ class ProductEventHandler(
     fun handleProductDeactivated(event: ProductDeactivatedEventEntity) {
         log.info("상품 비활성화 이벤트 처리: {}", event.productId)
         retryTemplate.execute<Void, Exception> { _ ->
-            val productDocument = productQueryMongoRepository.findByProductId(event.productId)
+            val productDocument = productMongoRepository.findByProductId(event.productId)
                 ?: throw IllegalStateException("상품을 찾을 수 없음: ${event.productId}")
 
             productDocument.active = false
@@ -90,7 +90,7 @@ class ProductEventHandler(
                 } ?: "비활성화 사유: ${event.reason}"
             }
 
-            productQueryMongoRepository.save(productDocument)
+            productMongoRepository.save(productDocument)
             log.info("상품 비활성화 완료: {}", event.productId)
             null
         }
