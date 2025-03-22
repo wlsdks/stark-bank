@@ -1,6 +1,7 @@
 package com.example.cqrs.common.service
 
 import com.example.cqrs.command.entity.event.AbstractAccountEventEntity
+import com.example.cqrs.command.entity.event.AccountCreatedEventEntity
 import com.example.cqrs.command.entity.event.enumerate.EventStatus
 import com.example.cqrs.command.usecase.AccountEventStoreUseCase
 import com.example.cqrs.common.exception.EventReplayException
@@ -34,10 +35,10 @@ class EventReplayService(
     }
 
     private fun replayEvent(event: AbstractAccountEventEntity) {
-        when (event.javaClass.simpleName) {
-            "AccountCreatedEventEntity" -> accountEventListener.handleAccountCreate(event)
-            "AccountCreditedEventEntity" -> accountEventListener.handleDeposit(event)
-            "AccountDebitedEventEntity" -> accountEventListener.handleWithdraw(event)
+        when (event) {
+            is AccountCreatedEventEntity -> accountEventListener.handleAccountCreate(event)
+            // 추가 필요
+            else -> throw IllegalArgumentException("지원하지 않는 이벤트 타입: ${event.javaClass.simpleName}")
         }
     }
 

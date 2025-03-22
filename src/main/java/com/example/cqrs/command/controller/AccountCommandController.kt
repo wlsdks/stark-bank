@@ -3,6 +3,7 @@ package com.example.cqrs.command.controller
 import com.example.cqrs.command.dto.CreateAccountRequest
 import com.example.cqrs.command.dto.DepositRequest
 import com.example.cqrs.command.dto.TransferRequest
+import com.example.cqrs.command.dto.WithdrawRequest
 import com.example.cqrs.command.usecase.AccountCommandUseCase
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -40,7 +41,7 @@ class AccountCommandController(
         @RequestParam("amount") amount: Double,
         @RequestHeader("X-User-Id") userId: String
     ): ResponseEntity<String> {
-        val request = DepositRequest.of(accountId, amount, userId)
+        val request = WithdrawRequest.of(accountId, amount, userId)
         accountCommandUseCase.withdrawMoney(request)
         return ResponseEntity.ok("출금이 완료되었습니다.")
     }
