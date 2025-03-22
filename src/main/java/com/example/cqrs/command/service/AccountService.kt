@@ -1,7 +1,7 @@
 package com.example.cqrs.command.service
 
 import com.example.cqrs.command.entity.AccountEntity
-import com.example.cqrs.command.entity.event.AbstractAccountEventEntity
+import com.example.cqrs.command.entity.event.base.AccountEvent
 import com.example.cqrs.command.repository.AccountRepository
 import com.example.cqrs.command.usecase.AccountEventStoreUseCase
 import com.example.cqrs.command.usecase.AccountUseCase
@@ -35,7 +35,7 @@ class AccountService(
      */
     override fun getAccountHistory(
         accountId: String
-    ): List<AbstractAccountEventEntity> {
+    ): List<AccountEvent> {
         return accountEventStoreUseCase.getAllEvents(accountId)
     }
 
@@ -48,7 +48,7 @@ class AccountService(
      */
     override fun getUserTransactions(
         userId: String
-    ): List<AbstractAccountEventEntity> {
+    ): List<AccountEvent> {
         return accountEventStoreUseCase.findByMetadataUserId(userId)
     }
 
@@ -62,7 +62,7 @@ class AccountService(
      */
     override fun getRelatedTransactions(
         correlationId: String
-    ): List<AbstractAccountEventEntity> {
+    ): List<AccountEvent> {
         return accountEventStoreUseCase.findByMetadataCorrelationId(correlationId)
     }
 
