@@ -6,7 +6,7 @@ import com.example.cqrs.application.account.command.dto.request.TransferRequest
 import com.example.cqrs.application.account.command.dto.request.WithdrawRequest
 import com.example.cqrs.application.account.command.service.usecase.AccountCommandUseCase
 import com.example.cqrs.common.exception.ConcurrencyException
-import com.example.cqrs.domain.exception.InsufficientBalanceException
+import com.example.cqrs.common.exception.InsufficientBalanceException
 import com.example.cqrs.infrastructure.eventstore.entity.base.metadata.EventMetadata
 import com.example.cqrs.infrastructure.eventstore.entity.enumerate.OperationType
 import com.example.cqrs.infrastructure.eventstore.entity.event.account.AccountCreatedEventEntity
