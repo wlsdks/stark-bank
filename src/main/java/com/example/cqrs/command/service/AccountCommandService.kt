@@ -8,7 +8,7 @@ import com.example.cqrs.command.entity.AccountEntity
 import com.example.cqrs.command.entity.AccountSnapshotEntity
 import com.example.cqrs.command.entity.event.account.AccountCreatedEvent
 import com.example.cqrs.command.entity.event.enumerate.OperationType
-import com.example.cqrs.command.entity.event.metadata.EventMetadata
+import com.example.cqrs.command.entity.event.base.metadata.EventMetadata
 import com.example.cqrs.command.entity.event.money.*
 import com.example.cqrs.command.repository.AccountEventRepository
 import com.example.cqrs.command.repository.AccountRepository
@@ -68,8 +68,8 @@ class AccountCommandService(
         val eventMetadata = EventMetadata.of(correlationId, null, request.userId)
         val event = AccountCreatedEvent.of(
             accountId = request.accountId,
-            eventDate = LocalDateTime.now(),
             amount = 0.0,
+            eventDate = LocalDateTime.now(),
             metadata = eventMetadata
         )
 

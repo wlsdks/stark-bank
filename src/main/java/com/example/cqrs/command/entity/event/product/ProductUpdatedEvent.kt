@@ -1,7 +1,7 @@
 package com.example.cqrs.command.entity.event.product
 
 import com.example.cqrs.command.entity.event.base.ProductEvent
-import com.example.cqrs.command.entity.event.metadata.EventMetadata
+import com.example.cqrs.command.entity.event.base.metadata.EventMetadata
 import jakarta.persistence.Column
 import jakarta.persistence.DiscriminatorValue
 import jakarta.persistence.Entity

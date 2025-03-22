@@ -2,7 +2,7 @@ package com.example.cqrs.command.entity.event.money
 
 import com.example.cqrs.command.entity.event.base.AccountEvent
 import com.example.cqrs.command.entity.event.enumerate.OperationType
-import com.example.cqrs.command.entity.event.metadata.EventMetadata
+import com.example.cqrs.command.entity.event.base.metadata.EventMetadata
 import jakarta.persistence.Column
 import jakarta.persistence.DiscriminatorValue
 import jakarta.persistence.Entity

@@ -1,7 +1,7 @@
 package com.example.cqrs.command.entity.event.base
 
 import com.example.cqrs.command.entity.event.enumerate.EventStatus
-import com.example.cqrs.command.entity.event.metadata.EventMetadata
+import com.example.cqrs.command.entity.event.base.metadata.EventMetadata
 import jakarta.persistence.DiscriminatorValue
 import jakarta.persistence.Entity
 import java.time.LocalDateTime

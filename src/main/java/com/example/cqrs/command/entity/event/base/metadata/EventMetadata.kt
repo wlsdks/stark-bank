@@ -1,4 +1,4 @@
-package com.example.cqrs.command.entity.event.metadata
+package com.example.cqrs.command.entity.event.base.metadata
 
 import com.example.cqrs.command.entity.event.enumerate.EventSchemaVersion
 import jakarta.persistence.Column

@@ -1,7 +1,7 @@
 package com.example.cqrs.command.dto.read
 
 import com.example.cqrs.command.entity.event.enumerate.EventSchemaVersion
-import com.example.cqrs.command.entity.event.metadata.EventMetadata
+import com.example.cqrs.command.entity.event.base.metadata.EventMetadata
 
 data class EventMetadataResponse(
     val correlationId: String? = null,

@@ -1,7 +1,7 @@
 package com.example.cqrs.command.entity.event.account
 
 import com.example.cqrs.command.entity.event.base.AccountEvent
-import com.example.cqrs.command.entity.event.metadata.EventMetadata
+import com.example.cqrs.command.entity.event.base.metadata.EventMetadata
 import jakarta.persistence.DiscriminatorValue
 import jakarta.persistence.Entity
 import java.time.LocalDateTime
@@ -23,8 +23,8 @@ class AccountCreatedEvent(
     companion object {
         fun of(
             accountId: String,
-            eventDate: LocalDateTime,
             amount: Double = 0.0,
+            eventDate: LocalDateTime,
             metadata: EventMetadata
         ): AccountCreatedEvent {
             return AccountCreatedEvent(
