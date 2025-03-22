@@ -8,7 +8,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  */
 @Configuration
 @EnableJpaRepositories(
-        basePackages = "com.example.cqrs.infrastructure.persistence.command.repository",
+        basePackages = {
+                "com.example.cqrs.infrastructure.persistence.command.repository",
+                "com.example.cqrs.infrastructure.eventstore.repository"
+        },
         entityManagerFactoryRef = "writeEntityManagerFactory",     // 쓰기 EntityManager 사용
         transactionManagerRef = "writeTransactionManager"          // 쓰기 TransactionManager 사용
 )

@@ -1,9 +1,9 @@
 package com.example.cqrs.application.command.account.service
 
-import com.example.cqrs.infrastructure.eventstore.base.AccountEvent
-import com.example.cqrs.infrastructure.eventstore.base.Event
-import com.example.cqrs.infrastructure.persistence.command.repository.AccountEventRepository
 import com.example.cqrs.application.command.account.service.usecase.AccountEventStoreUseCase
+import com.example.cqrs.infrastructure.eventstore.entity.base.AccountEvent
+import com.example.cqrs.infrastructure.eventstore.entity.base.Event
+import com.example.cqrs.infrastructure.eventstore.repository.AccountEventRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
@@ -11,7 +11,7 @@ import java.time.LocalDateTime
 @Transactional
 @Service
 class AccountEventStoreService(
-    private val accountEventRepository: com.example.cqrs.infrastructure.persistence.command.repository.AccountEventRepository
+    private val accountEventRepository: AccountEventRepository
 ) : AccountEventStoreUseCase {
 
     /**

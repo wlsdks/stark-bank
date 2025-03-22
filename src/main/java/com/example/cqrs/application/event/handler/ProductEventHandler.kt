@@ -1,5 +1,8 @@
 package com.example.cqrs.application.event.handler
 
+import com.example.cqrs.infrastructure.eventstore.entity.event.product.ProductCreatedEvent
+import com.example.cqrs.infrastructure.eventstore.entity.event.product.ProductDeactivatedEvent
+import com.example.cqrs.infrastructure.eventstore.entity.event.product.ProductUpdatedEvent
 import com.example.cqrs.infrastructure.persistence.query.document.ProductDocument
 import com.example.cqrs.infrastructure.persistence.query.repository.ProductQueryMongoRepository
 import org.slf4j.LoggerFactory
@@ -23,7 +26,7 @@ class ProductEventHandler(
      * 금융 상품 생성 이벤트 처리
      */
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    fun handleProductCreated(event: com.example.cqrs.infrastructure.eventstore.event.product.ProductCreatedEvent) {
+    fun handleProductCreated(event: ProductCreatedEvent) {
         log.info("상품 생성 이벤트 처리: {}", event.productId)
         retryTemplate.execute<Void, Exception> { _ ->
             val productDocument = ProductDocument.of(
@@ -48,7 +51,7 @@ class ProductEventHandler(
      * 금융 상품 수정 이벤트 처리
      */
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    fun handleProductUpdated(event: com.example.cqrs.infrastructure.eventstore.event.product.ProductUpdatedEvent) {
+    fun handleProductUpdated(event: ProductUpdatedEvent) {
         log.info("상품 수정 이벤트 처리: {}", event.productId)
         retryTemplate.execute<Void, Exception> { _ ->
             val productDocument = productQueryMongoRepository.findByProductId(event.productId)
@@ -71,7 +74,7 @@ class ProductEventHandler(
      * 금융 상품 비활성화 이벤트 처리
      */
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    fun handleProductDeactivated(event: com.example.cqrs.infrastructure.eventstore.event.product.ProductDeactivatedEvent) {
+    fun handleProductDeactivated(event: ProductDeactivatedEvent) {
         log.info("상품 비활성화 이벤트 처리: {}", event.productId)
         retryTemplate.execute<Void, Exception> { _ ->
             val productDocument = productQueryMongoRepository.findByProductId(event.productId)

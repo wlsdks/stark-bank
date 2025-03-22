@@ -73,7 +73,7 @@ public class DatabaseConfig {
                 .dataSource(dataSource)
                 .packages(
                         "com.example.cqrs.infrastructure.persistence.command.entity",  // 커맨드 엔티티 패키지
-                        "com.example.cqrs.infrastructure.eventstore.event"  // 계좌 이벤트 엔티티 패키지
+                        "com.example.cqrs.infrastructure.eventstore.entity"          // 이벤트 엔티티 패키지
                 )
                 .persistenceUnit("write")
                 .properties(hibernateProperties())

@@ -1,17 +1,17 @@
 package com.example.cqrs.application.command.account.service
 
-import com.example.cqrs.infrastructure.persistence.command.entity.AccountEntity
-import com.example.cqrs.infrastructure.eventstore.base.AccountEvent
-import com.example.cqrs.infrastructure.persistence.command.repository.AccountRepository
 import com.example.cqrs.application.command.account.service.usecase.AccountEventStoreUseCase
 import com.example.cqrs.application.command.account.service.usecase.AccountUseCase
+import com.example.cqrs.infrastructure.eventstore.entity.base.AccountEvent
+import com.example.cqrs.infrastructure.persistence.command.entity.AccountEntity
+import com.example.cqrs.infrastructure.persistence.command.repository.AccountRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Transactional
 @Service
 class AccountService(
-    private val accountRepository: com.example.cqrs.infrastructure.persistence.command.repository.AccountRepository,
+    private val accountRepository: AccountRepository,
     private val accountEventStoreUseCase: AccountEventStoreUseCase
 ) : AccountUseCase {
 
@@ -22,7 +22,7 @@ class AccountService(
      */
     override fun getAccount(
         accountId: String
-    ): com.example.cqrs.infrastructure.persistence.command.entity.AccountEntity {
+    ): AccountEntity {
         return accountRepository.findById(accountId)
             .orElseThrow { IllegalArgumentException("계좌 정보를 찾을 수 없습니다.") }
     }

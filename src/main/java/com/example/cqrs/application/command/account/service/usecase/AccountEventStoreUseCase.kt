@@ -1,7 +1,7 @@
 package com.example.cqrs.application.command.account.service.usecase
 
-import com.example.cqrs.infrastructure.eventstore.base.AccountEvent
-import com.example.cqrs.infrastructure.eventstore.base.Event
+import com.example.cqrs.infrastructure.eventstore.entity.base.AccountEvent
+import com.example.cqrs.infrastructure.eventstore.entity.base.Event
 import java.time.LocalDateTime
 
 interface AccountEventStoreUseCase {

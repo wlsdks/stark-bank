@@ -14,7 +14,7 @@ class ProductEntity private constructor(
 
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)
-    val type: com.example.cqrs.infrastructure.persistence.command.entity.ProductType,   // 상품 유형 (예금, 적금, 펀드 등)
+    val type: ProductType,   // 상품 유형 (예금, 적금, 펀드 등)
 
     @Column(name = "description")
     var description: String?, // 상품 설명
@@ -65,13 +65,13 @@ class ProductEntity private constructor(
         fun of(
             productId: String,
             name: String,
-            type: com.example.cqrs.infrastructure.persistence.command.entity.ProductType,
+            type: ProductType,
             description: String?,
             interestRate: Double,
             termInMonths: Int,
             minimumAmount: Double
-        ): com.example.cqrs.infrastructure.persistence.command.entity.ProductEntity {
-            return com.example.cqrs.infrastructure.persistence.command.entity.ProductEntity(
+        ): ProductEntity {
+            return ProductEntity(
                 productId, name, type, description,
                 interestRate, termInMonths, minimumAmount,
                 true, LocalDateTime.now(), null

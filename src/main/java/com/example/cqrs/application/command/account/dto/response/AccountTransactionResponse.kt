@@ -1,7 +1,7 @@
 package com.example.cqrs.application.command.account.dto.response
 
-import com.example.cqrs.infrastructure.eventstore.base.AccountEvent
-import com.example.cqrs.infrastructure.eventstore.enumerate.EventStatus
+import com.example.cqrs.infrastructure.eventstore.entity.base.AccountEvent
+import com.example.cqrs.infrastructure.eventstore.entity.enumerate.EventStatus
 import java.time.LocalDateTime
 
 data class AccountTransactionResponse(

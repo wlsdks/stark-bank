@@ -34,8 +34,8 @@ class AccountSnapshotEntity private constructor(
             balance: Double,
             snapshotDate: LocalDateTime,
             lastEventId: Long
-        ): com.example.cqrs.infrastructure.persistence.command.entity.AccountSnapshotEntity {
-            return com.example.cqrs.infrastructure.persistence.command.entity.AccountSnapshotEntity(
+        ): AccountSnapshotEntity {
+            return AccountSnapshotEntity(
                 accountId = accountId,
                 balance = balance,
                 snapshotDate = snapshotDate,

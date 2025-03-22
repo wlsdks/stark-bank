@@ -1,8 +1,8 @@
 package com.example.cqrs.application.query.account.service
 
+import com.example.cqrs.application.event.retry.AccountQueryUseCase
 import com.example.cqrs.infrastructure.persistence.query.document.AccountDocument
 import com.example.cqrs.infrastructure.persistence.query.repository.AccountQueryMongoRepository
-import com.example.cqrs.application.event.retry.AccountQueryUseCase
 import org.springframework.stereotype.Service
 
 @Service

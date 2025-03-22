@@ -1,6 +1,6 @@
 package com.example.cqrs.application.event.handler
 
-import com.example.cqrs.infrastructure.eventstore.base.Event
+import com.example.cqrs.infrastructure.eventstore.entity.base.Event
 
 /**
  * 이벤트 핸들러 인터페이스

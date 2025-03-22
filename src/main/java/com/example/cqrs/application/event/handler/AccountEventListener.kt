@@ -1,6 +1,8 @@
 package com.example.cqrs.application.event.handler
 
-import com.example.cqrs.infrastructure.eventstore.base.Event
+import com.example.cqrs.infrastructure.eventstore.entity.base.Event
+import com.example.cqrs.infrastructure.eventstore.entity.event.account.AccountCreatedEvent
+import com.example.cqrs.infrastructure.eventstore.entity.event.money.*
 import com.example.cqrs.infrastructure.persistence.query.document.AccountDocument
 import com.example.cqrs.infrastructure.persistence.query.repository.AccountQueryMongoRepository
 import org.slf4j.LoggerFactory
@@ -24,7 +26,7 @@ class AccountEventListener(
      * 계좌 생성 이벤트 처리
      */
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    fun handleAccountCreated(event: com.example.cqrs.infrastructure.eventstore.event.account.AccountCreatedEvent) {
+    fun handleAccountCreated(event: AccountCreatedEvent) {
         log.info("계좌 생성 이벤트 처리: {}", event.accountId)
         retryTemplate.execute<Void, Exception> { _ ->
             val accountDocument = AccountDocument.of(
@@ -42,7 +44,7 @@ class AccountEventListener(
      * 입금 이벤트 처리
      */
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    fun handleMoneyDeposited(event: com.example.cqrs.infrastructure.eventstore.event.money.MoneyDepositedEvent) {
+    fun handleMoneyDeposited(event: MoneyDepositedEvent) {
         log.info("입금 이벤트 처리: {}", event.accountId)
         updateBalance(event.accountId, event.amount ?: 0.0, true, event)
     }
@@ -52,7 +54,7 @@ class AccountEventListener(
      * 출금 이벤트 처리
      */
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    fun handleMoneyWithdrawn(event: com.example.cqrs.infrastructure.eventstore.event.money.MoneyWithdrawnEvent) {
+    fun handleMoneyWithdrawn(event: MoneyWithdrawnEvent) {
         log.info("출금 이벤트 처리: {}", event.accountId)
         updateBalance(event.accountId, event.amount ?: 0.0, false, event)
     }
@@ -62,7 +64,7 @@ class AccountEventListener(
      * 이체 출금 이벤트 처리
      */
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    fun handleMoneyTransferredOut(event: com.example.cqrs.infrastructure.eventstore.event.money.MoneyTransferredOutEvent) {
+    fun handleMoneyTransferredOut(event: MoneyTransferredOutEvent) {
         log.info("이체 출금 이벤트 처리: {} -> {}", event.accountId, event.targetAccountId)
         updateBalance(event.accountId, event.amount ?: 0.0, false, event)
     }
@@ -72,7 +74,7 @@ class AccountEventListener(
      * 이체 입금 이벤트 처리
      */
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    fun handleMoneyTransferredIn(event: com.example.cqrs.infrastructure.eventstore.event.money.MoneyTransferredInEvent) {
+    fun handleMoneyTransferredIn(event: MoneyTransferredInEvent) {
         log.info("이체 입금 이벤트 처리: {} <- {}", event.accountId, event.sourceAccountId)
         updateBalance(event.accountId, event.amount ?: 0.0, true, event)
     }
@@ -82,7 +84,7 @@ class AccountEventListener(
      * 잔액 변경 실패 이벤트 처리 (감사 로그 저장 등)
      */
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    fun handleBalanceChangeFailed(event: com.example.cqrs.infrastructure.eventstore.event.money.BalanceChangeFailedEvent) {
+    fun handleBalanceChangeFailed(event: BalanceChangeFailedEvent) {
         log.warn("잔액 변경 실패: {}, 사유: {}", event.accountId, event.reason)
         // 실패 로그 또는 알림 처리 로직
     }

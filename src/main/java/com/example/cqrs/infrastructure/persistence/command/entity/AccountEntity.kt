@@ -66,9 +66,9 @@ class AccountEntity private constructor(
             userId: String,
             accountType: String = "STANDARD",
             initialBalance: Double = 0.0
-        ): com.example.cqrs.infrastructure.persistence.command.entity.AccountEntity {
+        ): AccountEntity {
             val now = LocalDateTime.now()
-            return com.example.cqrs.infrastructure.persistence.command.entity.AccountEntity(
+            return AccountEntity(
                 accountId = accountId,
                 userId = userId,
                 accountType = accountType,

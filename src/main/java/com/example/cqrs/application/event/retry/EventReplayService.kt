@@ -1,10 +1,11 @@
 package com.example.cqrs.application.event.retry
 
-import com.example.cqrs.infrastructure.eventstore.base.AccountEvent
-import com.example.cqrs.infrastructure.eventstore.enumerate.EventStatus
 import com.example.cqrs.application.command.account.service.usecase.AccountEventStoreUseCase
-import com.example.cqrs.common.exception.EventReplayException
 import com.example.cqrs.application.event.handler.AccountEventListener
+import com.example.cqrs.common.exception.EventReplayException
+import com.example.cqrs.infrastructure.eventstore.entity.base.AccountEvent
+import com.example.cqrs.infrastructure.eventstore.entity.enumerate.EventStatus
+import com.example.cqrs.infrastructure.eventstore.entity.event.account.AccountCreatedEvent
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 
@@ -35,7 +36,7 @@ class EventReplayService(
 
     private fun replayEvent(event: AccountEvent) {
         when (event) {
-            is com.example.cqrs.infrastructure.eventstore.event.account.AccountCreatedEvent -> accountEventListener.handleAccountCreated(event)
+            is AccountCreatedEvent -> accountEventListener.handleAccountCreated(event)
             // 추가 필요
             else -> throw IllegalArgumentException("지원하지 않는 이벤트 타입: ${event.javaClass.simpleName}")
         }
