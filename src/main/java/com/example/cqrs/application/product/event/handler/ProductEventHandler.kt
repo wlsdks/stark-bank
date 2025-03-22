@@ -32,7 +32,7 @@ class ProductEventHandler(
             val productDocument = ProductDocument.of(
                 productId = event.productId,
                 name = event.name,
-                type = event.type.toString(),
+                type = event.type,
                 description = event.description,
                 interestRate = event.interestRate,
                 termInMonths = event.termInMonths,

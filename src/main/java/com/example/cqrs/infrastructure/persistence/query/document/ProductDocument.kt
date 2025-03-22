@@ -1,5 +1,6 @@
 package com.example.cqrs.infrastructure.persistence.query.document
 
+import com.example.cqrs.infrastructure.persistence.command.entity.ProductType
 import jakarta.persistence.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
@@ -19,7 +20,7 @@ class ProductDocument(
 
     var name: String,         // 상품명
 
-    var type: String,         // 상품 유형 (예금, 적금, 펀드 등)
+    var type: ProductType,    // 상품 유형 (예금, 적금, 펀드 등)
 
     var description: String?, // 상품 설명
 
@@ -46,7 +47,7 @@ class ProductDocument(
         fun of(
             productId: String,
             name: String,
-            type: String,
+            type: ProductType,
             description: String?,
             interestRate: Double,
             termInMonths: Int,

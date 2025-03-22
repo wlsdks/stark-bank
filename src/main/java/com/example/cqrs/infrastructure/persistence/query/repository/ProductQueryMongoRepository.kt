@@ -1,5 +1,6 @@
 package com.example.cqrs.infrastructure.persistence.query.repository
 
+import com.example.cqrs.infrastructure.persistence.command.entity.ProductType
 import com.example.cqrs.infrastructure.persistence.query.document.ProductDocument
 import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.data.mongodb.repository.Query
@@ -20,7 +21,7 @@ interface ProductQueryMongoRepository : MongoRepository<ProductDocument, String>
     /**
      * 상품 유형으로 상품 목록 조회
      */
-    fun findByType(type: String): List<ProductDocument>
+    fun findByType(type: ProductType): List<ProductDocument>
 
     /**
      * 활성화된 상품만 조회
@@ -30,7 +31,7 @@ interface ProductQueryMongoRepository : MongoRepository<ProductDocument, String>
     /**
      * 상품 유형과 활성화 상태로 조회
      */
-    fun findByTypeAndActiveTrue(type: String): List<ProductDocument>
+    fun findByTypeAndActiveTrue(type: ProductType): List<ProductDocument>
 
     /**
      * 최소 가입 금액 이하의 상품 조회

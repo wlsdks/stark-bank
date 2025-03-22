@@ -9,6 +9,7 @@ import java.time.LocalDateTime
  * 계좌 상태의 스냅샷 관리 (성능 최적화용)
  */
 interface AccountSnapshotRepository : JpaRepository<AccountSnapshotEntity, String> {
+
     // 특정 날짜 이후의 최신 스냅샷 조회
     fun findByAccountIdAndSnapshotDateAfterOrderBySnapshotDateDesc(
         accountId: String, afterDate: LocalDateTime
@@ -16,4 +17,5 @@ interface AccountSnapshotRepository : JpaRepository<AccountSnapshotEntity, Strin
 
     // 계좌별 최신 스냅샷 가져오기
     fun findTopByAccountIdOrderBySnapshotDateDesc(accountId: String): AccountSnapshotEntity?
+
 }
