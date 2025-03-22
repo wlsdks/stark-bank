@@ -1,37 +1,40 @@
-package com.example.cqrs.command.entity.event
+package com.example.cqrs.command.entity.event.base
 
 import com.example.cqrs.command.entity.event.enumerate.EventStatus
 import com.example.cqrs.command.entity.event.metadata.EventMetadata
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
+/**
+ * 모든 이벤트의 기본 구현을 제공하는 추상 클래스
+ */
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "event_type")
-@Table(name = "financial_event_store")
-abstract class AbstractFinancialEventEntity(
+@Table(name = "event_store")
+abstract class BaseEvent(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    override val id: Long? = null,
 
     @Column(nullable = false)
-    val eventDate: LocalDateTime, // 이벤트 발생 일시
+    override val eventDate: LocalDateTime,
 
     @Embedded
-    val metadata: EventMetadata, // 이벤트 메타데이터
+    override val metadata: EventMetadata,
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    var status: EventStatus = EventStatus.PENDING, // 이벤트 처리 상태
+    override var status: EventStatus = EventStatus.PENDING,
 
     @Version
-    var version: Long? = null // JPA 낙관적 잠금용 버전
-) {
-    fun markAsProcessed() {
+    override var version: Long? = null
+) : Event {
+    override fun markAsProcessed() {
         this.status = EventStatus.PROCESSED
     }
 
-    fun markAsFailed() {
+    override fun markAsFailed() {
         this.status = EventStatus.FAILED
     }
 }

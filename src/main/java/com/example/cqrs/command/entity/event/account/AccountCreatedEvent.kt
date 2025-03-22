@@ -1,35 +1,36 @@
-package com.example.cqrs.command.entity.event
+package com.example.cqrs.command.entity.event.account
 
+import com.example.cqrs.command.entity.event.base.AccountEvent
 import com.example.cqrs.command.entity.event.metadata.EventMetadata
 import jakarta.persistence.DiscriminatorValue
 import jakarta.persistence.Entity
 import java.time.LocalDateTime
 
-@Entity
 @DiscriminatorValue("AccountCreatedEvent")
-class AccountCreatedEventEntity(
+@Entity
+class AccountCreatedEvent(
     accountId: String,
+    amount: Double? = 0.0,
     eventDate: LocalDateTime,
-    amount: Double,
     metadata: EventMetadata
-) : AbstractAccountEventEntity(
+) : AccountEvent(
     id = null,
     accountId = accountId,
-    eventDate = eventDate,
     amount = amount,
+    eventDate = eventDate,
     metadata = metadata
 ) {
     companion object {
         fun of(
             accountId: String,
             eventDate: LocalDateTime,
-            amount: Double,
+            amount: Double = 0.0,
             metadata: EventMetadata
-        ): AccountCreatedEventEntity {
-            return AccountCreatedEventEntity(
+        ): AccountCreatedEvent {
+            return AccountCreatedEvent(
                 accountId = accountId,
-                eventDate = eventDate,
                 amount = amount,
+                eventDate = eventDate,
                 metadata = metadata
             )
         }
