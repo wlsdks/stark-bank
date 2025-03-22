@@ -1,14 +1,15 @@
 package com.example.cqrs.command.usecase
 
-import com.example.cqrs.command.entity.event.AbstractAccountEventEntity
+import com.example.cqrs.command.entity.event.base.AccountEvent
+import com.example.cqrs.command.entity.event.base.Event
 import java.time.LocalDateTime
 
 interface AccountEventStoreUseCase {
-    fun save(event: AbstractAccountEventEntity)
-    fun saveEventStatus(event: AbstractAccountEventEntity)
-    fun getEvents(accountId: String, after: LocalDateTime): List<AbstractAccountEventEntity>
-    fun getAllEvents(accountId: String): List<AbstractAccountEventEntity>
-    fun findByMetadataCorrelationId(correlationId: String): List<AbstractAccountEventEntity>
-    fun findByMetadataUserId(userId: String): List<AbstractAccountEventEntity>
+    fun save(event: Event)
+    fun saveEventStatus(event: Event)
+    fun getEvents(accountId: String, after: LocalDateTime): List<AccountEvent>
+    fun getAllEvents(accountId: String): List<AccountEvent>
+    fun findByMetadataCorrelationId(correlationId: String): List<AccountEvent>
+    fun findByMetadataUserId(userId: String): List<AccountEvent>
     fun countEventsAfterDate(accountId: String, afterDate: LocalDateTime): Long
 }

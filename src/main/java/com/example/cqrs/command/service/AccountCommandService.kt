@@ -6,16 +6,17 @@ import com.example.cqrs.command.dto.TransferRequest
 import com.example.cqrs.command.dto.WithdrawRequest
 import com.example.cqrs.command.entity.AccountEntity
 import com.example.cqrs.command.entity.AccountSnapshotEntity
-import com.example.cqrs.command.entity.event.AccountCreatedEventEntity
-import com.example.cqrs.command.entity.event.MoneyDepositedEventEntity
-import com.example.cqrs.command.entity.event.MoneyWithdrawnEventEntity
-import com.example.cqrs.command.entity.event.metadata.EventMetadata
+import com.example.cqrs.command.entity.event.account.AccountCreatedEvent
+import com.example.cqrs.command.entity.event.enumerate.OperationType
+import com.example.cqrs.command.entity.event.base.metadata.EventMetadata
+import com.example.cqrs.command.entity.event.money.*
+import com.example.cqrs.command.repository.AccountEventRepository
 import com.example.cqrs.command.repository.AccountRepository
 import com.example.cqrs.command.repository.AccountSnapshotRepository
+import com.example.cqrs.command.repository.EventStoreRepository
 import com.example.cqrs.command.usecase.AccountCommandUseCase
-import com.example.cqrs.command.usecase.AccountEventStoreUseCase
 import com.example.cqrs.common.exception.ConcurrencyException
-import com.example.cqrs.domain.Account
+import com.example.cqrs.common.exception.InsufficientBalanceException
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.orm.ObjectOptimisticLockingFailureException
 import org.springframework.stereotype.Service
@@ -31,7 +32,8 @@ import java.util.*
 @Transactional(readOnly = true)
 @Service
 class AccountCommandService(
-    private val accountEventStoreUseCase: AccountEventStoreUseCase,
+    private val accountEventRepository: AccountEventRepository,
+    private val eventStoreRepository: EventStoreRepository,
     private val snapshotRepository: AccountSnapshotRepository,
     private val accountRepository: AccountRepository,
     private val eventPublisher: ApplicationEventPublisher
@@ -43,263 +45,320 @@ class AccountCommandService(
     }
 
     /**
-     * 새로운 계좌를 생성합니다.
-     * 계좌 생성 이벤트를 저장하고 발행합니다.
+     * 새로운 계좌를 생성
+     * 계좌 생성 이벤트를 저장하고 발행
      *
-     * @param request 계좌 생성 요청 DTO (계좌ID, 사용자ID 포함)
+     * @param request 계좌 생성 요청 DTO
+     * @return 생성된 계좌 ID
      * @throws IllegalArgumentException 계좌가 이미 존재하는 경우
      */
     @Transactional
-    override fun createAccount(request: CreateAccountRequest) {
+    override fun createAccount(request: CreateAccountRequest): String {
         // 계좌 중복 검사
         if (accountRepository.existsById(request.accountId)) {
-            throw IllegalArgumentException("이미 존재하는 계좌입니다.")
+            throw IllegalArgumentException("이미 존재하는 계좌입니다: ${request.accountId}")
         }
 
-        // 계좌 생성 및 저장
-        val account = AccountEntity.of(request.accountId, 0.0)
+        // 계좌 엔티티 생성 및 저장
+        val account = AccountEntity.of(request.accountId, request.userId)
         accountRepository.save(account)
 
         // 계좌 생성 이벤트 객체 생성
         val correlationId = UUID.randomUUID().toString()
         val eventMetadata = EventMetadata.of(correlationId, null, request.userId)
-        val event = AccountCreatedEventEntity.of(
-            request.accountId,
-            LocalDateTime.now(),
-            0.0,
-            eventMetadata
+        val event = AccountCreatedEvent.of(
+            accountId = request.accountId,
+            amount = 0.0,
+            eventDate = LocalDateTime.now(),
+            metadata = eventMetadata
         )
 
         // 이벤트 저장 및 발행
-        accountEventStoreUseCase.save(event)
+        eventStoreRepository.save(event)
         eventPublisher.publishEvent(event)
 
-        // 스냅샷 저장이 필요한지 확인하고 필요한 경우 저장합니다.
-        checkAndSaveSnapshot(request.accountId)
+        // 스냅샷 저장이 필요한지 확인
+        checkAndCreateSnapshot(request.accountId)
+
+        return request.accountId
     }
 
     /**
-     * 계좌에 입금합니다.
-     * 입금 이벤트를 저장하고 발행합니다.
+     * 계좌에 입금
+     * 잔액 업데이트 및 입금 이벤트 발행
      *
-     * @param request 입금 요청 DTO (계좌ID, 입금액, 사용자ID 포함)
+     * @param request 입금 요청 DTO
+     * @return 입금 후 잔액
      * @throws IllegalArgumentException 금액이 유효하지 않은 경우
-     * @throws ConcurrencyException     동시성 충돌이 발생한 경우
      */
     @Transactional
-    override fun depositMoney(request: DepositRequest) {
+    override fun depositMoney(request: DepositRequest): Double {
+        // 금액 유효성 검증
         validateAmount(request.amount)
-        val account = accountRepository.findById(request.accountId)
-            .orElseThrow { IllegalArgumentException("계좌를 찾을 수 없습니다.") }
 
-        // DB 잔액 업데이트
-        account.changeBalance(account.balance + request.amount)
+        // 계좌 조회
+        val account = getAccount(request.accountId)
+
+        // 잔액 업데이트
+        val newBalance = account.balance + request.amount
+        account.changeBalance(newBalance)
         accountRepository.save(account)
 
         // 입금 이벤트 객체 생성
         val correlationId = UUID.randomUUID().toString()
         val eventMetadata = EventMetadata.of(correlationId, null, request.userId)
-        val event = MoneyDepositedEventEntity.of(
-            request.accountId,
-            LocalDateTime.now(),
-            request.amount,
-            eventMetadata
+        val event = MoneyDepositedEvent.of(
+            accountId = request.accountId,
+            amount = request.amount,
+            eventDate = LocalDateTime.now(),
+            metadata = eventMetadata
         )
 
         try {
             // 이벤트 저장 및 발행
-            accountEventStoreUseCase.save(event)
+            eventStoreRepository.save(event)
             eventPublisher.publishEvent(event)
 
-            // 스냅샷 저장이 필요한지 확인하고 필요한 경우 저장합니다.
-            checkAndSaveSnapshot(request.accountId)
+            // 스냅샷 저장이 필요한지 확인
+            checkAndCreateSnapshot(request.accountId)
+
+            return newBalance
         } catch (e: ObjectOptimisticLockingFailureException) {
             throw ConcurrencyException("동시성 충돌이 발생했습니다. 다시 시도해주세요.")
         }
     }
 
     /**
-     * 계좌에서 출금합니다.
-     * 출금 이벤트를 저장하고 발행합니다.
+     * 계좌에서 출금
+     * 잔액 확인, 업데이트 및 출금 이벤트 발행
      *
-     * @param request 출금 요청 DTO (계좌ID, 출금액, 사용자ID 포함)
-     * @throws IllegalArgumentException 금액이 유효하지 않거나 잔액이 부족한 경우
-     * @throws ConcurrencyException     동시성 충돌이 발생한 경우
+     * @param request 출금 요청 DTO
+     * @return 출금 후 잔액
+     * @throws IllegalArgumentException 금액이 유효하지 않은 경우
+     * @throws InsufficientBalanceException 잔액이 부족한 경우
      */
     @Transactional
-    override fun withdrawMoney(request: WithdrawRequest) {
+    override fun withdrawMoney(request: WithdrawRequest): Double {
+        // 금액 유효성 검증
         validateAmount(request.amount)
-        val account = accountRepository.findById(request.accountId)
-            .orElseThrow { IllegalArgumentException("계좌를 찾을 수 없습니다.") }
-        account.checkAvailableWithdraw(request.amount)
 
-        // DB 잔액 업데이트
-        account.changeBalance(account.balance - request.amount)
+        // 계좌 조회
+        val account = getAccount(request.accountId)
+
+        // 출금 가능 여부 확인
+        if (account.balance < request.amount) {
+            val failEvent = createBalanceChangeFailedEvent(
+                request.accountId,
+                request.amount,
+                request.userId,
+                "잔액 부족",
+                OperationType.WITHDRAW
+            )
+            eventStoreRepository.save(failEvent)
+            eventPublisher.publishEvent(failEvent)
+
+            throw InsufficientBalanceException(
+                "잔액이 부족합니다. 현재 잔액: ${account.balance}, 요청 금액: ${request.amount}"
+            )
+        }
+
+        // 잔액 업데이트
+        val newBalance = account.balance - request.amount
+        account.changeBalance(newBalance)
         accountRepository.save(account)
 
         // 출금 이벤트 객체 생성
         val correlationId = UUID.randomUUID().toString()
         val eventMetadata = EventMetadata.of(correlationId, null, request.userId)
-        val event = MoneyWithdrawnEventEntity.of(
-            request.accountId,
-            LocalDateTime.now(),
-            request.amount,
-            eventMetadata
+        val event = MoneyWithdrawnEvent.of(
+            accountId = request.accountId,
+            amount = request.amount,
+            eventDate = LocalDateTime.now(),
+            metadata = eventMetadata
         )
 
         try {
             // 이벤트 저장 및 발행
-            accountEventStoreUseCase.save(event)
+            eventStoreRepository.save(event)
             eventPublisher.publishEvent(event)
 
-            // 스냅샷 저장이 필요한지 확인하고 필요한 경우 저장합니다.
-            checkAndSaveSnapshot(request.accountId)
+            // 스냅샷 저장이 필요한지 확인
+            checkAndCreateSnapshot(request.accountId)
+
+            return newBalance
         } catch (e: ObjectOptimisticLockingFailureException) {
             throw ConcurrencyException("동시성 충돌이 발생했습니다. 다시 시도해주세요.")
         }
     }
 
     /**
-     * 계좌 이체를 수행합니다.
-     * 출금과 입금 이벤트를 하나의 거래로 묶어 처리합니다.
+     * 계좌 이체 수행
+     * 출금 및 입금 이벤트를 하나의 트랜잭션으로 처리
      *
      * @param request 이체 요청 DTO
-     * @throws IllegalArgumentException 금액이 유효하지 않거나 잔액이 부족한 경우
-     * @throws ConcurrencyException     동시성 충돌이 발생한 경우
+     * @throws IllegalArgumentException 금액이 유효하지 않은 경우
+     * @throws InsufficientBalanceException 잔액이 부족한 경우
      */
     @Transactional
     override fun transfer(request: TransferRequest) {
+        // 금액 유효성 검증
         validateAmount(request.amount)
-        val fromAccount = loadAccount(request.fromAccountId)
-        fromAccount.checkAvailableWithdraw(request.amount)
+
+        // 동일 계좌 이체 방지
+        if (request.fromAccountId == request.toAccountId) {
+            throw IllegalArgumentException("출금 계좌와 입금 계좌가 동일합니다.")
+        }
+
+        // 출금 계좌 조회
+        val fromAccount = getAccount(request.fromAccountId)
+
+        // 입금 계좌 조회
+        val toAccount = getAccount(request.toAccountId)
+
+        // 출금 가능 여부 확인
+        if (fromAccount.balance < request.amount) {
+            val failEvent = createBalanceChangeFailedEvent(
+                request.fromAccountId,
+                request.amount,
+                request.userId,
+                "잔액 부족",
+                OperationType.TRANSFER
+            )
+            eventStoreRepository.save(failEvent)
+            eventPublisher.publishEvent(failEvent)
+
+            throw InsufficientBalanceException(
+                "잔액이 부족합니다. 현재 잔액: ${fromAccount.balance}, 요청 금액: ${request.amount}"
+            )
+        }
 
         // 하나의 거래를 위한 correlation ID 생성
         val correlationId = UUID.randomUUID().toString()
 
-        // 출금 이벤트 생성
-        val withdrawMetadata = EventMetadata.of(correlationId, null, request.userId)
-        val withdrawEvent = MoneyWithdrawnEventEntity.of(
-            request.fromAccountId,
-            LocalDateTime.now(),
-            request.amount,
-            withdrawMetadata
-        )
+        // 출금 처리
+        fromAccount.changeBalance(fromAccount.balance - request.amount)
+        accountRepository.save(fromAccount)
 
-        // 입금 이벤트 생성 (출금 이벤트를 원인으로 지정)
-        val depositMetadata = EventMetadata.of(correlationId, withdrawEvent.id?.toString(), request.userId)
-        val depositEvent = MoneyDepositedEventEntity.of(
-            request.toAccountId,
-            LocalDateTime.now(),
-            request.amount,
-            depositMetadata
+        // 이체 출금 이벤트 생성
+        val withdrawMetadata = EventMetadata.of(correlationId, null, request.userId)
+        val withdrawEvent = MoneyTransferredOutEvent.of(
+            accountId = request.fromAccountId,
+            targetAccountId = request.toAccountId,
+            amount = request.amount,
+            eventDate = LocalDateTime.now(),
+            metadata = withdrawMetadata
         )
 
         try {
-            // 이벤트 저장 및 발행
-            accountEventStoreUseCase.save(withdrawEvent)
-            accountEventStoreUseCase.save(depositEvent)
-            eventPublisher.publishEvent(withdrawEvent)
+            // 출금 이벤트 저장 및 발행
+            val savedWithdrawEvent = eventStoreRepository.save(withdrawEvent) as MoneyTransferredOutEvent
+            eventPublisher.publishEvent(savedWithdrawEvent)
+
+            // 입금 처리
+            toAccount.changeBalance(toAccount.balance + request.amount)
+            accountRepository.save(toAccount)
+
+            // 이체 입금 이벤트 생성 (출금 이벤트를 원인으로 연결)
+            val depositMetadata = EventMetadata.of(
+                correlationId,
+                savedWithdrawEvent.id?.toString(),
+                request.userId
+            )
+            val depositEvent = MoneyTransferredInEvent.of(
+                accountId = request.toAccountId,
+                sourceAccountId = request.fromAccountId,
+                amount = request.amount,
+                eventDate = LocalDateTime.now(),
+                metadata = depositMetadata
+            )
+
+            // 입금 이벤트 저장 및 발행
+            eventStoreRepository.save(depositEvent)
             eventPublisher.publishEvent(depositEvent)
 
-            // 스냅샷 저장이 필요한지 확인하고 필요한 경우 저장합니다.
-            checkAndSaveSnapshot(request.fromAccountId)
-            checkAndSaveSnapshot(request.toAccountId)
+            // 스냅샷 저장이 필요한지 확인
+            checkAndCreateSnapshot(request.fromAccountId)
+            checkAndCreateSnapshot(request.toAccountId)
         } catch (e: ObjectOptimisticLockingFailureException) {
             throw ConcurrencyException("동시성 충돌이 발생했습니다. 다시 시도해주세요.")
         }
     }
 
     /**
-     * 계좌의 현재 상태를 로드합니다.
-     *
-     * @param accountId 계좌 ID
-     * @return 계좌 도메인 객체
+     * 잔액 변경 실패 이벤트 생성
      */
-    private fun loadAccount(accountId: String): Account {
-        val balance = calculateCurrentBalance(accountId)
-        return Account.of(accountId, balance)
+    private fun createBalanceChangeFailedEvent(
+        accountId: String,
+        amount: Double,
+        userId: String,
+        reason: String,
+        operationType: OperationType
+    ): BalanceChangeFailedEvent {
+        val correlationId = UUID.randomUUID().toString()
+        val eventMetadata = EventMetadata.of(correlationId, null, userId)
+
+        return BalanceChangeFailedEvent.of(
+            accountId = accountId,
+            amount = amount,
+            reason = reason,
+            operationType = operationType,
+            eventDate = LocalDateTime.now(),
+            metadata = eventMetadata
+        )
     }
 
     /**
-     * 계좌의 현재 잔액을 계산합니다.
-     * 가장 최근 스냅샷부터 현재까지의 이벤트를 적용하여 계산합니다.
-     *
-     * @param accountId 계좌 ID
-     * @return 현재 잔액
+     * 계좌 정보 조회
      */
-    private fun calculateCurrentBalance(accountId: String): Double {
-        // 최근 스냅샷 조회
-        val snapshot = snapshotRepository.findById(accountId).orElse(null)
-
-        val fromDate: LocalDateTime
-        var balance: Double
-
-        // 스냅샷이 있으면 스냅샷 시점부터, 없으면 처음부터 계산
-        if (snapshot != null) {
-            balance = snapshot.balance
-            fromDate = snapshot.snapshotDate
-        } else {
-            balance = 0.0
-            fromDate = LocalDateTime.of(1970, 1, 1, 0, 0)
-        }
-
-        // 스냅샷 이후의 모든 이벤트를 적용하여 잔액 계산
-        val events = accountEventStoreUseCase.getEvents(accountId, fromDate)
-        for (event in events) {
-            when (event) {
-                is MoneyDepositedEventEntity -> balance += event.amount ?: 0.0
-                is MoneyWithdrawnEventEntity -> balance -= event.amount ?: 0.0
-            }
-        }
-
-        return balance
+    private fun getAccount(accountId: String): AccountEntity {
+        return accountRepository.findById(accountId)
+            .orElseThrow { IllegalArgumentException("계좌를 찾을 수 없습니다: $accountId") }
     }
 
     /**
-     * 금액의 유효성을 검증합니다.
-     *
-     * @param amount 검증할 금액
-     * @throws IllegalArgumentException 금액이 0 이하인 경우
+     * 금액 유효성 검증
      */
     private fun validateAmount(amount: Double) {
         if (amount <= 0) {
-            throw IllegalArgumentException("금액은 0보다 커야 합니다.")
+            throw IllegalArgumentException("금액은 0보다 커야 합니다. 입력 금액: $amount")
         }
     }
 
     /**
-     * 스냅샷 저장이 필요한지 확인하고 필요한 경우 저장합니다.
-     * SNAPSHOT_THRESHOLD 이상의 이벤트가 누적된 경우 스냅샷을 생성합니다.
-     *
-     * @param accountId 계좌 ID
+     * 스냅샷 생성 필요 여부 확인 및 생성
      */
-    private fun checkAndSaveSnapshot(accountId: String) {
-        val lastSnapshot = snapshotRepository.findById(accountId).orElse(null)
+    private fun checkAndCreateSnapshot(accountId: String) {
+        val lastSnapshot = snapshotRepository.findTopByAccountIdOrderBySnapshotDateDesc(accountId)
 
         val fromDate = lastSnapshot?.snapshotDate
             ?: LocalDateTime.of(1970, 1, 1, 0, 0)
 
         // 마지막 스냅샷 이후 이벤트 수 확인
-        val eventCount = accountEventStoreUseCase.countEventsAfterDate(accountId, fromDate)
+        val eventCount = accountEventRepository.countByAccountIdAndEventDateAfter(accountId, fromDate)
 
         // 임계값 초과시 스냅샷 생성
         if (eventCount >= SNAPSHOT_THRESHOLD) {
-            saveSnapshot(accountId)
+            createSnapshot(accountId)
         }
     }
 
     /**
-     * 현재 상태의 스냅샷을 저장합니다.
-     *
-     * @param accountId 계좌 ID
+     * 현재 상태의 스냅샷 생성
      */
-    private fun saveSnapshot(accountId: String) {
-        val currentBalance = calculateCurrentBalance(accountId)
+    private fun createSnapshot(accountId: String) {
+        val account = getAccount(accountId)
+
+        // 최신 이벤트 조회
+        val latestEvent = accountEventRepository.findByAccountIdOrderByEventDateDesc(accountId).firstOrNull()
+            ?: return // 이벤트가 없으면 스냅샷 생성 불필요
+
         val snapshot = AccountSnapshotEntity.of(
-            accountId,
-            currentBalance,
-            LocalDateTime.now()
+            accountId = accountId,
+            balance = account.balance,
+            snapshotDate = LocalDateTime.now(),
+            lastEventId = latestEvent.id ?: 0
         )
+
         snapshotRepository.save(snapshot)
     }
 

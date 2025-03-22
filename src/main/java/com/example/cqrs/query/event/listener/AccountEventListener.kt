@@ -1,10 +1,8 @@
 package com.example.cqrs.query.event.listener
 
-import com.example.cqrs.command.entity.event.AbstractAccountEventEntity
-import com.example.cqrs.command.entity.event.AccountCreatedEventEntity
-import com.example.cqrs.command.entity.event.MoneyDepositedEventEntity
-import com.example.cqrs.command.entity.event.MoneyWithdrawnEventEntity
-import com.example.cqrs.common.exception.EventHandlingException
+import com.example.cqrs.command.entity.event.account.AccountCreatedEvent
+import com.example.cqrs.command.entity.event.base.Event
+import com.example.cqrs.command.entity.event.money.*
 import com.example.cqrs.query.document.AccountDocument
 import com.example.cqrs.query.repository.AccountQueryMongoRepository
 import org.slf4j.LoggerFactory
@@ -25,95 +23,110 @@ class AccountEventListener(
     private val log = LoggerFactory.getLogger(AccountEventListener::class.java)
 
     /**
-     * 계좌 생성 이벤트를 처리합니다.
-     * MongoDB에 새로운 읽기 모델 계정을 생성합니다.
-     *
-     * @param event 계좌 생성 이벤트
-     * @throws EventHandlingException 모든 재시도 후에도 처리 실패 시
+     * 계좌 생성 이벤트 처리
      */
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    fun handleAccountCreate(event: AccountCreatedEventEntity) {
-        log.info("계좌 생성 이벤트 처리 시작: {}", event.accountId)
+    fun handleAccountCreated(event: AccountCreatedEvent) {
+        log.info("계좌 생성 이벤트 처리: {}", event.accountId)
+        retryTemplate.execute<Void, Exception> { _ ->
+            val accountDocument = AccountDocument.of(
+                accountId = event.accountId,
+                balance = event.amount ?: 0.0,
+                lastUpdated = event.eventDate
+            )
+            accountQueryMongoRepository.save(accountDocument)
+            log.info("계좌 생성 완료: {}", event.accountId)
+            null
+        }
+    }
+
+    /**
+     * 입금 이벤트 처리
+     */
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    fun handleMoneyDeposited(event: MoneyDepositedEvent) {
+        log.info("입금 이벤트 처리: {}", event.accountId)
+        updateBalance(event.accountId, event.amount ?: 0.0, true, event)
+    }
+
+
+    /**
+     * 출금 이벤트 처리
+     */
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    fun handleMoneyWithdrawn(event: MoneyWithdrawnEvent) {
+        log.info("출금 이벤트 처리: {}", event.accountId)
+        updateBalance(event.accountId, event.amount ?: 0.0, false, event)
+    }
+
+
+    /**
+     * 이체 출금 이벤트 처리
+     */
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    fun handleMoneyTransferredOut(event: MoneyTransferredOutEvent) {
+        log.info("이체 출금 이벤트 처리: {} -> {}", event.accountId, event.targetAccountId)
+        updateBalance(event.accountId, event.amount ?: 0.0, false, event)
+    }
+
+
+    /**
+     * 이체 입금 이벤트 처리
+     */
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    fun handleMoneyTransferredIn(event: MoneyTransferredInEvent) {
+        log.info("이체 입금 이벤트 처리: {} <- {}", event.accountId, event.sourceAccountId)
+        updateBalance(event.accountId, event.amount ?: 0.0, true, event)
+    }
+
+
+    /**
+     * 잔액 변경 실패 이벤트 처리 (감사 로그 저장 등)
+     */
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    fun handleBalanceChangeFailed(event: BalanceChangeFailedEvent) {
+        log.warn("잔액 변경 실패: {}, 사유: {}", event.accountId, event.reason)
+        // 실패 로그 또는 알림 처리 로직
+    }
+
+    /**
+     * 계좌 잔액 업데이트 공통 메서드
+     */
+    private fun updateBalance(
+        accountId: String,
+        amount: Double,
+        isDeposit: Boolean,
+        event: Event
+    ) {
         try {
             retryTemplate.execute<Void, Exception> { _ ->
-                val accountDocument = AccountDocument.of(
-                    event.accountId,
-                    event.amount ?: 0.0, // null이면 0.0으로 처리
-                    event.eventDate
-                )
+                val accountDocument = accountQueryMongoRepository.findByAccountId(accountId)
+                    ?: throw IllegalStateException("계좌를 찾을 수 없음: $accountId")
+
+                val newBalance = if (isDeposit) {
+                    accountDocument.balance + amount
+                } else {
+                    accountDocument.balance - amount
+                }
+
+                accountDocument.changeBalance(newBalance)
+                accountDocument.lastUpdated = event.eventDate
                 accountQueryMongoRepository.save(accountDocument)
-                log.info("계좌 생성 이벤트 처리 완료: {}", event.accountId)
                 null
             }
         } catch (e: Exception) {
-            log.error("계좌 생성 이벤트 처리 실패: {}", event.accountId, e)
-            throw EventHandlingException("계좌 생성 이벤트 처리 실패")
+            log.error("잔액 업데이트 실패: {}", accountId, e)
+            // 이벤트 처리 실패 시 상태 업데이트 (별도 복구 프로세스용)
+            markEventAsFailed(event)
         }
     }
 
     /**
-     * 입금 이벤트를 처리합니다.
-     * MongoDB의 읽기 모델 잔액을 증가시킵니다.
-     *
-     * @param event 입금 이벤트
+     * 이벤트 처리 실패 시 상태 업데이트
      */
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    fun handleDeposit(event: MoneyDepositedEventEntity) {
-        log.info("계좌 입금 이벤트 처리 시작: {}", event.accountId)
-        updateBalanceWithRetry(event, true)
-    }
-
-    /**
-     * 출금 이벤트를 처리합니다.
-     * MongoDB의 읽기 모델 잔액을 감소시킵니다.
-     *
-     * @param event 출금 이벤트
-     */
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    fun handleWithdraw(event: MoneyWithdrawnEventEntity) {
-        log.info("계좌 출금 이벤트 처리 시작: {}", event.accountId)
-        updateBalanceWithRetry(event, false)
-    }
-
-    /**
-     * 잔액 업데이트를 재시도 로직과 함께 수행합니다.
-     *
-     * @param event     계좌 이벤트
-     * @param isDeposit true인 경우 입금, false인 경우 출금
-     * @throws EventHandlingException 모든 재시도 후에도 처리 실패 시
-     */
-    private fun updateBalanceWithRetry(event: AbstractAccountEventEntity, isDeposit: Boolean) {
-        try {
-            retryTemplate.execute<Void, Exception> { _ ->
-                updateBalance(event, isDeposit)
-                log.info("잔액 업데이트 완료: {}", event.accountId)
-                null
-            }
-        } catch (e: Exception) {
-            log.error("잔액 업데이트 실패: {}", event.accountId, e)
-            throw EventHandlingException("잔액 업데이트 실패")
-        }
-    }
-
-    /**
-     * MongoDB의 읽기 모델 잔액을 업데이트합니다.
-     *
-     * @param event     계좌 이벤트
-     * @param isDeposit true인 경우 입금, false인 경우 출금
-     * @throws IllegalArgumentException 계좌를 찾을 수 없는 경우
-     */
-    private fun updateBalance(event: AbstractAccountEventEntity, isDeposit: Boolean) {
-        val accountDocument = accountQueryMongoRepository.findByAccountId(event.accountId)
-            ?: throw IllegalArgumentException("MongoDB에서 계좌를 찾을 수 없습니다.")
-
-        val newBalance = if (isDeposit)
-            accountDocument.balance + (event.amount ?: 0.0)
-        else
-            accountDocument.balance - (event.amount ?: 0.0)
-
-        accountDocument.changeBalance(newBalance)
-        accountDocument.changeLastUpdated(event.eventDate)
-        accountQueryMongoRepository.save(accountDocument)
+    private fun markEventAsFailed(event: Event) {
+        event.markAsFailed()
+        // 이벤트 저장 로직 (별도 저장소 또는 DB 업데이트)
     }
 
 }

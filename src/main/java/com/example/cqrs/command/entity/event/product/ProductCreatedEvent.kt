@@ -1,13 +1,17 @@
-package com.example.cqrs.command.entity
+package com.example.cqrs.command.entity.event.product
 
-import com.example.cqrs.command.entity.event.AbstractFinancialEventEntity
-import com.example.cqrs.command.entity.event.metadata.EventMetadata
+import com.example.cqrs.command.entity.ProductType
+import com.example.cqrs.command.entity.event.base.ProductEvent
+import com.example.cqrs.command.entity.event.base.metadata.EventMetadata
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
-@Entity
+/**
+ * 금융 상품 생성 이벤트
+ */
 @DiscriminatorValue("ProductCreatedEvent")
-class ProductCreatedEventEntity(
+@Entity
+class ProductCreatedEvent(
     @Column(name = "productId", nullable = false)
     val productId: String,
 
@@ -32,13 +36,12 @@ class ProductCreatedEventEntity(
 
     eventDate: LocalDateTime,
     metadata: EventMetadata
-) : AbstractFinancialEventEntity(
+) : ProductEvent(
     id = null,
     eventDate = eventDate,
     metadata = metadata
 ) {
     companion object {
-        // factory method
         fun of(
             productId: String,
             name: String,
@@ -49,8 +52,8 @@ class ProductCreatedEventEntity(
             minimumAmount: Double,
             eventDate: LocalDateTime,
             metadata: EventMetadata
-        ): ProductCreatedEventEntity {
-            return ProductCreatedEventEntity(
+        ): ProductCreatedEvent {
+            return ProductCreatedEvent(
                 productId = productId,
                 name = name,
                 type = type,

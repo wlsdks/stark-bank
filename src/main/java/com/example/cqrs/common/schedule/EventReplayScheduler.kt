@@ -1,6 +1,6 @@
 package com.example.cqrs.common.schedule
 
-import com.example.cqrs.command.entity.event.AbstractAccountEventEntity
+import com.example.cqrs.command.entity.event.base.AccountEvent
 import com.example.cqrs.command.entity.event.enumerate.EventStatus
 import com.example.cqrs.command.usecase.AccountEventStoreUseCase
 import com.example.cqrs.command.usecase.AccountUseCase
@@ -45,7 +45,7 @@ class EventReplayScheduler(
     private fun findUnprocessedEvents(
         accountId: String,
         fromDate: LocalDateTime
-    ): List<AbstractAccountEventEntity> {
+    ): List<AccountEvent> {
         return accountEventStoreUseCase.getEvents(accountId, fromDate)
             .filter { event -> event.status != EventStatus.PROCESSED }
     }

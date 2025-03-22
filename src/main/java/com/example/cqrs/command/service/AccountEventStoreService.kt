@@ -1,7 +1,8 @@
 package com.example.cqrs.command.service
 
-import com.example.cqrs.command.entity.event.AbstractAccountEventEntity
-import com.example.cqrs.command.repository.AccountEventStoreRepository
+import com.example.cqrs.command.entity.event.base.AccountEvent
+import com.example.cqrs.command.entity.event.base.Event
+import com.example.cqrs.command.repository.AccountEventRepository
 import com.example.cqrs.command.usecase.AccountEventStoreUseCase
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -10,7 +11,7 @@ import java.time.LocalDateTime
 @Transactional
 @Service
 class AccountEventStoreService(
-    private val accountEventStoreRepository: AccountEventStoreRepository
+    private val accountEventRepository: AccountEventRepository
 ) : AccountEventStoreUseCase {
 
     /**
@@ -19,11 +20,13 @@ class AccountEventStoreService(
      *
      * @param event 이벤트
      */
-    override fun save(
-        event: AbstractAccountEventEntity
-    ) {
-        validateEvent(event)
-        accountEventStoreRepository.save(event)
+    override fun save(event: Event) {
+        if (event is AccountEvent) {
+            validateEvent(event)
+            accountEventRepository.save(event)
+        } else {
+            throw IllegalArgumentException("지원하지 않는 이벤트 타입입니다: ${event.javaClass.name}")
+        }
     }
 
     /**
@@ -31,10 +34,12 @@ class AccountEventStoreService(
      *
      * @param event 이벤트
      */
-    override fun saveEventStatus(
-        event: AbstractAccountEventEntity
-    ) {
-        accountEventStoreRepository.save(event)
+    override fun saveEventStatus(event: Event) {
+        if (event is AccountEvent) {
+            accountEventRepository.save(event)
+        } else {
+            throw IllegalArgumentException("지원하지 않는 이벤트 타입입니다: ${event.javaClass.name}")
+        }
     }
 
     /**
@@ -48,8 +53,8 @@ class AccountEventStoreService(
     override fun getEvents(
         accountId: String,
         after: LocalDateTime
-    ): List<AbstractAccountEventEntity> {
-        return accountEventStoreRepository.findByAccountIdAndEventDateAfterOrderByEventDateAsc(accountId, after)
+    ): List<AccountEvent> {
+        return accountEventRepository.findByAccountIdAndEventDateAfterOrderByEventDateAsc(accountId, after)
     }
 
     /**
@@ -60,8 +65,8 @@ class AccountEventStoreService(
      */
     override fun getAllEvents(
         accountId: String
-    ): List<AbstractAccountEventEntity> {
-        return accountEventStoreRepository.findByAccountIdOrderByEventDateAsc(accountId)
+    ): List<AccountEvent> {
+        return accountEventRepository.findByAccountIdOrderByEventDateAsc(accountId)
     }
 
     /**
@@ -72,8 +77,8 @@ class AccountEventStoreService(
      */
     override fun findByMetadataCorrelationId(
         correlationId: String
-    ): List<AbstractAccountEventEntity> {
-        return accountEventStoreRepository.findByMetadataCorrelationId(correlationId)
+    ): List<AccountEvent> {
+        return accountEventRepository.findByMetadataCorrelationId(correlationId)
     }
 
     /**
@@ -84,38 +89,41 @@ class AccountEventStoreService(
      */
     override fun findByMetadataUserId(
         userId: String
-    ): List<AbstractAccountEventEntity> {
-        return accountEventStoreRepository.findByMetadataUserIdOrderByEventDateDesc(userId)
+    ): List<AccountEvent> {
+        return accountEventRepository.findByMetadataUserIdOrderByEventDateDesc(userId)
     }
 
     /**
      * 계좌 ID로 이벤트 건수를 조회합니다.
-     * 특정 사용자의 모든 거래 이력을 조회할 때 사용됩니다.
+     * 특정 날짜 이후의 이벤트 건수를 조회할 때 사용됩니다.
      *
      * @param accountId 계좌 ID
+     * @param afterDate 조회 시작 일시
      * @return 이벤트 건수
      */
     override fun countEventsAfterDate(
         accountId: String,
         afterDate: LocalDateTime
     ): Long {
-        return accountEventStoreRepository.countByAccountIdAndEventDateAfter(accountId, afterDate)
+        return accountEventRepository.countByAccountIdAndEventDateAfter(accountId, afterDate)
     }
 
     /**
-     * 이벤트 저장
+     * 이벤트 시간 유효성 검증
+     * 이전 이벤트보다 이벤트 발생 시간이 빠른 경우 예외 발생
      *
-     * @param event 이벤트
+     * @param event 검증할 이벤트
      */
-    private fun validateEvent(
-        event: AbstractAccountEventEntity
-    ) {
-        val existingEvents = accountEventStoreRepository.findByAccountIdOrderByEventDateDesc(event.accountId)
+    private fun validateEvent(event: AccountEvent) {
+        val existingEvents = accountEventRepository.findByAccountIdOrderByEventDateDesc(event.accountId)
 
         if (existingEvents.isNotEmpty()) {
             val lastEvent = existingEvents.first()
             if (lastEvent.eventDate.isAfter(event.eventDate)) {
-                throw IllegalArgumentException("이벤트 발생 일시가 이전 이벤트보다 빠릅니다.")
+                throw IllegalArgumentException(
+                    "이벤트 발생 일시가 이전 이벤트보다 빠릅니다." +
+                            " 마지막 이벤트 시간: ${lastEvent.eventDate}, 현재 이벤트 시간: ${event.eventDate}"
+                )
             }
         }
     }

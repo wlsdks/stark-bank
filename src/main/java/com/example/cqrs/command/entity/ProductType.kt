@@ -1,5 +1,8 @@
 package com.example.cqrs.command.entity
 
+/**
+ * 상품 유형 enum
+ */
 enum class ProductType(
     val code: String,
     val description: String
