@@ -1,9 +1,9 @@
 package com.example.cqrs.interfaces.scheduler.eventreplay
 
-import com.example.cqrs.application.command.account.service.usecase.AccountEventStoreUseCase
-import com.example.cqrs.application.command.account.service.usecase.AccountUseCase
-import com.example.cqrs.application.event.retry.EventReplayService
-import com.example.cqrs.infrastructure.eventstore.entity.base.AccountEvent
+import com.example.cqrs.application.account.command.service.usecase.AccountEventStoreUseCase
+import com.example.cqrs.application.account.command.service.usecase.AccountUseCase
+import com.example.cqrs.application.account.event.retry.EventReplayService
+import com.example.cqrs.infrastructure.eventstore.entity.base.AccountEventBaseEntity
 import com.example.cqrs.infrastructure.eventstore.entity.enumerate.EventStatus
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
@@ -45,7 +45,7 @@ class EventReplayScheduler(
     private fun findUnprocessedEvents(
         accountId: String,
         fromDate: LocalDateTime
-    ): List<AccountEvent> {
+    ): List<AccountEventBaseEntity> {
         return accountEventStoreUseCase.getEvents(accountId, fromDate)
             .filter { event -> event.status != EventStatus.PROCESSED }
     }

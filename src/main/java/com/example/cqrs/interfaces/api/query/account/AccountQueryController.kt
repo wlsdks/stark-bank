@@ -1,6 +1,6 @@
 package com.example.cqrs.interfaces.api.query.account
 
-import com.example.cqrs.application.event.retry.AccountQueryUseCase
+import com.example.cqrs.application.account.event.retry.AccountQueryUseCase
 import com.example.cqrs.infrastructure.persistence.query.document.AccountDocument
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping

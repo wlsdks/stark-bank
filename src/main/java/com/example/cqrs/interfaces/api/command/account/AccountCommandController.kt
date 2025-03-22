@@ -1,10 +1,10 @@
 package com.example.cqrs.interfaces.api.command.account
 
-import com.example.cqrs.application.command.account.dto.request.CreateAccountRequest
-import com.example.cqrs.application.command.account.dto.request.DepositRequest
-import com.example.cqrs.application.command.account.dto.request.TransferRequest
-import com.example.cqrs.application.command.account.dto.request.WithdrawRequest
-import com.example.cqrs.application.command.account.service.usecase.AccountCommandUseCase
+import com.example.cqrs.application.account.command.dto.request.CreateAccountRequest
+import com.example.cqrs.application.account.command.dto.request.DepositRequest
+import com.example.cqrs.application.account.command.dto.request.TransferRequest
+import com.example.cqrs.application.account.command.dto.request.WithdrawRequest
+import com.example.cqrs.application.account.command.service.usecase.AccountCommandUseCase
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
