@@ -1,6 +1,6 @@
 package com.example.cqrs.application.common.sync
 
-import com.example.cqrs.application.account.command.service.usecase.AccountQueryUseCase
+import com.example.cqrs.application.account.query.service.usecase.AccountUseCase
 import com.example.cqrs.infrastructure.eventstore.entity.base.metadata.EventMetadata
 import com.example.cqrs.infrastructure.eventstore.entity.event.account.AccountCreatedEventEntity
 import com.example.cqrs.infrastructure.eventstore.entity.event.product.ProductCreatedEventEntity
@@ -30,7 +30,7 @@ import java.util.*
  */
 @Service
 class DataSynchronizationService(
-    private val accountQueryUseCase: AccountQueryUseCase,
+    private val accountUseCase: AccountUseCase,
     private val accountRepository: AccountRepository,
     private val productRepository: ProductRepository,
     private val accountMongoRepository: AccountMongoRepository,
@@ -83,7 +83,7 @@ class DataSynchronizationService(
         log.info("계좌 데이터 동기화 시작")
 
         // 활성 계좌 목록 조회
-        val accountIds = accountQueryUseCase.getActiveAccountIds()
+        val accountIds = accountUseCase.getActiveAccountIds()
         log.info("동기화할 계좌 수: {}", accountIds.size)
 
         // 각 계좌에 대해 동기화 수행

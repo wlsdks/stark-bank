@@ -1,8 +1,8 @@
 package com.example.cqrs.interfaces.scheduler.eventreplay
 
 import com.example.cqrs.application.account.command.service.usecase.AccountEventStoreUseCase
-import com.example.cqrs.application.account.command.service.usecase.AccountQueryUseCase
 import com.example.cqrs.application.account.event.retry.EventReplayService
+import com.example.cqrs.application.account.query.service.usecase.AccountUseCase
 import com.example.cqrs.infrastructure.eventstore.entity.base.AccountEventBaseEntity
 import com.example.cqrs.infrastructure.eventstore.entity.enumerate.EventStatus
 import org.springframework.scheduling.annotation.Scheduled
@@ -12,7 +12,7 @@ import java.time.LocalDateTime
 @Component
 class EventReplayScheduler(
     private val eventReplayService: EventReplayService,
-    private val accountQueryUseCase: AccountQueryUseCase,
+    private val accountUseCase: AccountUseCase,
     private val accountEventStoreUseCase: AccountEventStoreUseCase
 ) {
 
@@ -21,7 +21,7 @@ class EventReplayScheduler(
         val yesterday = LocalDateTime.now().minusDays(1)
 
         try {
-            val activeAccountIds = accountQueryUseCase.getActiveAccountIds()
+            val activeAccountIds = accountUseCase.getActiveAccountIds()
 
             activeAccountIds.forEach { accountId ->
                 val findUnprocessedEvents = findUnprocessedEvents(accountId, yesterday)

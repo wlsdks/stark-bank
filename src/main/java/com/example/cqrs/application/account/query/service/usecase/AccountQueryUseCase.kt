@@ -1,4 +1,4 @@
-package com.example.cqrs.application.account.event.retry
+package com.example.cqrs.application.account.query.service.usecase
 
 import com.example.cqrs.infrastructure.persistence.query.document.AccountDocument
 
