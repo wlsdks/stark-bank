@@ -9,17 +9,17 @@ server:
 spring:
   datasource:
     write:
-      jdbc-url: jdbc:postgresql://localhost:5432/demo
-      username: root
-      password: 1234
+      jdbc-url: jdbc:postgresql://localhost:5432/mydatabase
+      username: admin
+      password: admin123
       driver-class-name: org.postgresql.Driver
       hikari:
         maximum-pool-size: 10
         minimum-idle: 5
     read:
-      jdbc-url: jdbc:postgresql://localhost:5432/demo
-      username: root
-      password: 1234
+      jdbc-url: jdbc:postgresql://localhost:5432/mydatabase
+      username: admin
+      password: admin123
       driver-class-name: org.postgresql.Driver
       hikari:
         maximum-pool-size: 20
