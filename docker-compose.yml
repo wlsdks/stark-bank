@@ -2,34 +2,55 @@ version: "3.9"
 
 services:
   mongodb:
-    image: mongo:6.0
+    image: mongo:7
     container_name: mongodb
     restart: always
     ports:
-      - "27017:27017" # 호스트와 컨테이너 간의 포트 매핑
+      - "27017:27017"  # 호스트와 컨테이너 간의 포트 매핑
     environment:
-      MONGO_INITDB_ROOT_USERNAME: admin # MongoDB 기본 관리자 계정
-      MONGO_INITDB_ROOT_PASSWORD: admin123 # 관리자 비밀번호
+      MONGO_INITDB_ROOT_USERNAME: admin       # MongoDB 기본 관리자 계정
+      MONGO_INITDB_ROOT_PASSWORD: admin123      # 관리자 비밀번호
     volumes:
-      - mongodb_data:/data/db # 데이터 영구 저장 볼륨
+      - mongodb_data:/data/db                  # 데이터 영구 저장 볼륨
+    networks:
+      - app_network
 
   mongo-express:
     image: mongo-express:latest
     container_name: mongo-express
     restart: always
     ports:
-      - "8101:8081" # 웹 UI 포트 매핑
+      - "8101:8081"  # 웹 UI 포트 매핑
     environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: admin # MongoDB 기본 관리자 계정
-      ME_CONFIG_MONGODB_ADMINPASSWORD: admin123 # 관리자 비밀번호
-      ME_CONFIG_MONGODB_SERVER: mongodb # MongoDB 호스트 이름
-      ME_CONFIG_SITE_BASEURL: "/" # 기본 URL 경로
-      ME_CONFIG_BASICAUTH_USERNAME: admin # Basic Auth 사용자 이름
-      ME_CONFIG_BASICAUTH_PASSWORD: admin123 # Basic Auth 비밀번호
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin    # MongoDB 관리자 계정
+      ME_CONFIG_MONGODB_ADMINPASSWORD: admin123   # 관리자 비밀번호
+      ME_CONFIG_MONGODB_SERVER: mongodb           # MongoDB 호스트 이름
+      ME_CONFIG_SITE_BASEURL: "/"                 # 기본 URL 경로
+      ME_CONFIG_BASICAUTH_USERNAME: admin         # Basic Auth 사용자 이름
+      ME_CONFIG_BASICAUTH_PASSWORD: admin123      # Basic Auth 비밀번호
+    depends_on:
+      - mongodb
+    networks:
+      - app_network
+
+  postgres:
+    image: postgres:17
+    container_name: postgres
+    restart: always
+    ports:
+      - "5432:5432"  # PostgreSQL 기본 포트 매핑
+    environment:
+      POSTGRES_USER: admin         # PostgreSQL 사용자 이름
+      POSTGRES_PASSWORD: admin123  # PostgreSQL 비밀번호
+      POSTGRES_DB: mydatabase      # 기본 데이터베이스 이름
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # 데이터 영구 저장 볼륨
+    networks:
+      - app_network
 
 volumes:
   mongodb_data:
+  postgres_data:
 
 networks:
-  default:
-    name: mongodb_network
+  app_network:
