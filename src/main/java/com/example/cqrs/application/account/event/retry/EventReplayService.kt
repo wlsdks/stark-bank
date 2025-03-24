@@ -42,7 +42,7 @@ class EventReplayService(
 
     private fun replayEvent(event: AccountEventBaseEntity) {
         when (event) {
-            is AccountCreatedEventEntity -> accountEventListener.handleAccountCreated(event)
+            is AccountCreatedEventEntity -> accountEventListener.handleEvent(event)
             // 추가 필요
             else -> throw IllegalArgumentException("지원하지 않는 이벤트 타입: ${event.javaClass.simpleName}")
         }
