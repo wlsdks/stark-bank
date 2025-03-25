@@ -18,6 +18,7 @@ class AccountEventListener(
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     fun handleEvent(event: EventEntity) {
+        // 모든 이벤트 타입을 디스패처로 전달
         eventDispatcher.dispatch(event)
     }
 
